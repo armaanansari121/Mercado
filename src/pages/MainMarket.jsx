@@ -6,8 +6,6 @@ import { motion } from "framer-motion";
 
 import { BackgroundGradientDemo } from "../components/BackgroundGradientDemo";
 import { Using3dCard } from "../components/Using3dCard";
-import GlowingButton from "../components/GlowingButton";
-// import Loader from "../components/Loader";// Import your Loader component
 import { useStateContext } from "../contexts";
 import { getMetadata } from "../utils/web3Helpers";
 import { Gateway_url } from "../../config";
@@ -20,68 +18,61 @@ export function MainMarket() {
     name: "",
     description: "",
     price: "",
+    artist: "",
+    perks: "",
+    image: "",
+    ipfsHash: "",
+    countNFTs: 0,
+    token_id: 0,
     creator: "",
-    owner: "",
-    available: "",
   });
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
   const location = useLocation();
-  const { ERC1155_CONTRACT, MercatContract, account } = useStateContext();
+  const { ERC1155_CONTRACT, account } = useStateContext();
   const [metadata, setMetadata] = useState([]);
   const [filteredMetadata, setFilteredMetadata] = useState([]);
-  const [purchaseAmount, setPurchaseAmount] = useState(1); // State to hold the purchase amount
+  const [purchaseAmount, setPurchaseAmount] = useState(1);
 
   useEffect(() => {
     const fetchMetadata = async () => {
       try {
-        const hashes = await ERC1155_CONTRACT.methods.getAll().call();
+        const totalIDs = await ERC1155_CONTRACT.methods.nextTokenId().call();
+        const totalNFTs = parseInt(totalIDs)-1;
         const metadataArray = [];
-        for (let i = 0; i < hashes.length; i++) {
-          const data = await getMetadata(Gateway_url, hashes[i]);
-          const token_id = Number(
-            await ERC1155_CONTRACT.methods.getTokenIdByURI(hashes[i]).call()
-          );
-          const ownerOfThisNFT = await ERC1155_CONTRACT.methods
-            .tokenIDtoHolderFn(token_id)
-            .call();
-          const NFTamount = Number(
-            await ERC1155_CONTRACT.methods
-              .balanceOf(ownerOfThisNFT[0], token_id)
-              .call()
-          );
-          const nftDetails = {
-            name: data.name,
-            description: data.description,
-            price: data.price,
-            theme: data.theme,
-            image: data.image,
-            creator: data.creator,
-            owner: ownerOfThisNFT[0],
-            available: NFTamount,
-            token_id: token_id,
-          };
-
-          metadataArray.push(nftDetails);
+        for (let i = 1; i <= totalNFTs; i++) {
+          const ipfsHash = await ERC1155_CONTRACT.methods.tokenIdToIpfsHash(i).call();
+          const NFTDetails = await ERC1155_CONTRACT.methods.getMarketDetails(ipfsHash).call();
+          const Metadata = await getMetadata(Gateway_url, ipfsHash);
+          
+          metadataArray.push({
+            name: NFTDetails[0],
+            description: NFTDetails[1],
+            theme: NFTDetails[2],
+            image: Metadata.image,
+            ipfsHash: ipfsHash,
+            price: Number(NFTDetails[4]),
+            perks: NFTDetails[5],
+            creator: NFTDetails[6],
+            countNFTs:/* Number(NFTDetails[7]) */"",
+            token_id: i,
+          });
         }
         setMetadata(metadataArray);
+        setFilteredMetadata(metadataArray);
       } catch (error) {
         console.error("Error fetching metadata:", error);
       }
     };
     fetchMetadata();
-  }, [ERC1155_CONTRACT]);
-  
+  }, [ERC1155_CONTRACT, account]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const theme = params.get("theme");
 
-    let filteredData = [];
-    if (theme) {
-      filteredData = metadata.filter((item) => item.theme === theme);
-    } else {
-      filteredData = [...metadata];
-    }
+    let filteredData = theme
+      ? metadata.filter((item) => item.theme === theme)
+      : [...metadata];
     setFilteredMetadata(filteredData);
 
     switch (theme) {
@@ -103,52 +94,46 @@ export function MainMarket() {
     }
   }, [location.search, metadata]);
 
-  const handleImageClick = async (image) => {
+  const handleImageClick = (image) => {
     setSelectedImage(image);
-
-    const selectedMetadata = filteredMetadata.find(
-      (item) => item.image === image
-    );
-
-    // Update selected image details state
-    setSelectedImageDetails({
-      name: selectedMetadata?.name || "",
-      description: selectedMetadata?.description || "",
-      price: selectedMetadata?.price || "",
-      creator: selectedMetadata?.creator || "",
-      owner: selectedMetadata?.owner || "",
-      available: selectedMetadata?.available || "",
-      token_id: selectedMetadata?.token_id || "",
-    });
+    const selectedMetadata = filteredMetadata.find((item) => item.image === image);
+    setSelectedImageDetails(selectedMetadata || {});
   };
 
   const handleBuy = async () => {
-    if (selectedImageDetails.price && selectedImageDetails.owner) {
+    if (selectedImageDetails.price && selectedImageDetails.image) {
       try {
-        setLoading(true); // Start loading
-  
+        setLoading(true);
         const amount = parseInt(purchaseAmount);
-        const calculatedPrice = selectedImageDetails.price * amount;
-  
-        // Request user's permission to interact with MetaMask
+
         await window.ethereum.request({ method: 'eth_requestAccounts' });
-  
-        // Send transaction to MercatContract
-        const txn = await MercatContract.methods
-          .transferWithInfiniteAllowance(selectedImageDetails.owner, calculatedPrice)
+
+        // Call the mint function of the contract
+        const txn = await ERC1155_CONTRACT.methods
+          .mint(selectedImageDetails.ipfsHash, amount)
           .send({ from: account });
-  
-        console.log("Transaction Hash:", txn.transactionHash);
-        alert("Transaction completed!");
-        // After transaction is successful, transfer NFT to user's account
-        await ERC1155_CONTRACT.methods
-          .transfer(account, selectedImageDetails.token_id, amount)
-          .send({ from: selectedImageDetails.owner });
-        
-        setLoading(false); // Stop loading
+
+        setLoading(false);
         alert("Purchase successful!");
+
+        // Refresh metadata after purchase
+        const updatedMetadata = [...metadata];
+        const index = updatedMetadata.findIndex(
+          (item) => item.token_id === selectedImageDetails.token_id
+        );
+        if (index !== -1) {
+          
+          setMetadata(updatedMetadata);
+          setFilteredMetadata(
+            location.search
+              ? updatedMetadata.filter(
+                  (item) => item.theme === new URLSearchParams(location.search).get("theme")
+                )
+              : updatedMetadata
+          );
+        }
       } catch (error) {
-        setLoading(false); // Stop loading on error
+        setLoading(false);
         console.error("Error purchasing NFT:", error);
         alert("Error purchasing NFT. Please try again.");
       }
@@ -156,8 +141,54 @@ export function MainMarket() {
       alert("Invalid NFT details. Please select a valid NFT.");
     }
   };
-  
 
+  const handleSell = async () => {
+    if (selectedImageDetails.token_id) {
+      try {
+        setLoading(true);
+        const amount = parseInt(purchaseAmount);
+
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+        // Call the sell function of the contract
+        const txn = await ERC1155_CONTRACT.methods
+          .sell(selectedImageDetails.ipfsHash, amount)
+          .send({ from: account });
+
+        console.log("Transaction Hash:", txn.transactionHash);
+        setLoading(false);
+        alert("Sale successful!");
+
+        // Refresh metadata after sale
+        const updatedMetadata = [...metadata];
+        const index = updatedMetadata.findIndex(
+          (item) => item.token_id === selectedImageDetails.token_id
+        );
+        if (index !== -1) {
+          
+          setMetadata(updatedMetadata);
+          setFilteredMetadata(
+            location.search
+              ? updatedMetadata.filter(
+                  (item) => item.theme === new URLSearchParams(location.search).get("theme")
+                )
+              : updatedMetadata
+          );
+        }
+      } catch (error) {
+        setLoading(false);
+        console.error("Error selling NFT:", error);
+        alert("Error selling NFT. Please try again.");
+      }
+    } else {
+      alert("Invalid NFT details. Please select a valid NFT.");
+    }
+  };
+
+  console.log("filteredMetadata", filteredMetadata);
+  console.log("selectedImageDetails", selectedImageDetails);
+  console.log("metadata", metadata);
+  console.log("selectedImage", selectedImage);
   return (
     <div
       className={cn(
@@ -225,42 +256,23 @@ export function MainMarket() {
             <>
               <div className="Details">
                 <div className="text-neutral-200 text-2xl mb-4">
-                  Name:{" "}
-                  <span className="text-neutral-500">
-                    {selectedImageDetails?.name}
-                  </span>
+                  Name: <span className="text-neutral-500">{selectedImageDetails?.name}</span>
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">
-                  Description:{" "}
-                  <span className="text-neutral-500">
-                    {selectedImageDetails?.description}
-                  </span>
+                  Description: <span className="text-neutral-500">{selectedImageDetails?.description}</span>
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">
-                  Price:{" "}
-                  <span className="text-neutral-500">
-                    {selectedImageDetails?.price} MEC
-                  </span>
+                  Price: <span className="text-neutral-500">{selectedImageDetails?.price} MEC</span>
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">
-                  Amount:{" "}
-                  <span className="text-neutral-500">
-                    {selectedImageDetails?.available}
-                  </span>
+                  MintedNFTs: <span className="text-neutral-500">{selectedImageDetails?.countNFTs}</span>
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">
-                  Creator:{" "}
-                  <span className="text-neutral-500">
-                    {selectedImageDetails?.creator}
-                  </span>
+                  Artist: <span className="text-neutral-500">{selectedImageDetails?.creator}</span>
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">
-                  Owner:{" "}
-                  <span className="text-neutral-500">
-                    {selectedImageDetails?.owner}
-                  </span>
+                  Perks: <span className="text-neutral-500">{selectedImageDetails?.perks}</span>
                 </div>
-                
               </div>
 
               <div className="AmountInput flex justify-center items-center mt-4">
@@ -298,7 +310,29 @@ export function MainMarket() {
                     style={{ backgroundColor: "#92199f" }}
                     onClick={handleBuy}
                   >
-                    Make Purchase
+                    Buy
+                  </motion.button>
+                )}
+              </div>
+              <div className="Sell flex justify-center items-center mt-4">
+                {loading ? (
+                  <div className="text-slate-100 flex justify-center items-center">
+                    <div
+                      className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                      role="status"
+                    ></div>
+                    <span>Loading...</span>
+                  </div>
+                ) : (
+                  <motion.button
+                    whileHover={{
+                      boxShadow: "0 0 10px 3px rgba(255, 255, 255, 0.7)",
+                    }}
+                    className="block my-4 p-2 text-white rounded-2xl"
+                    style={{ backgroundColor: "#92199f" }}
+                    onClick={handleSell}
+                  >
+                    Sell
                   </motion.button>
                 )}
               </div>
