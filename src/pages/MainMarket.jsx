@@ -55,7 +55,7 @@ export function MainMarket() {
             price: Number(updatedPrice),
             perks: NFTDetails[5],
             creator: NFTDetails[6],
-            countNFTs: /* Number(NFTDetails[7]) */ "",
+            countNFTs: NFTDetails[7],
             token_id: i,
           });
         }
@@ -108,9 +108,6 @@ export function MainMarket() {
         setBuyLoading(true);
         const amount = parseInt(purchaseAmount);
 
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-
-        // Call the mint function of the contract
         const txn = await ERC1155_CONTRACT.methods
           .mint(selectedImageDetails.ipfsHash, amount)
           .send({ from: account });
