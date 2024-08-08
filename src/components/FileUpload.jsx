@@ -10,16 +10,13 @@ function FileUpload({
   setPreviewImage,
   account,
   handleLoadingChange,
+  metadataFields,
+  setMetadataFields
 }) {
   const [selectedFile, setSelectedFile] = useState();
   const [uploadingFile, setUploadingFile] = useState(false);
   const [uploadingMetadata, setUploadingMetadata] = useState(false);
-  const [metadataFields, setMetadataFields] = useState({
-    name: "",
-    description: "",
-    theme: "",
-    price: "", // New field for NFT price
-  });
+  
 
   useEffect(() => {
     if (ipfsHash) {
@@ -80,6 +77,7 @@ function FileUpload({
         creator: account,
         image: `${Gateway_url}/ipfs/${ipfsHash}`,
         price: metadataFields.price, // Include price in metadata
+        Perks: metadataFields.perks, // Include perks in metadata
       };
       const metadata = JSON.stringify(metadataObject);
 
@@ -117,6 +115,7 @@ function FileUpload({
       ...prevFields,
       [field]: value,
     }));
+    
   };
 
   return (
@@ -186,6 +185,14 @@ function FileUpload({
             style={{ backgroundColor: "#333", color: "#fff", border: "1px solid #555", borderRadius: "4px", padding: "8px", width:"100%"}}
             value={metadataFields.price}
             onChange={(e) => handleInputChange("price", e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Perks (comma separated) e.g. 'VIP Access, Early Access'"
+            className="my-3"
+            style={{ backgroundColor: "#333", color: "#fff", border: "1px solid #555", borderRadius: "4px", padding: "8px", width:"100%"}}
+            value={metadataFields.perks}
+            onChange={(e) => handleInputChange("perks", e.target.value)}
           />
 
           <motion.button
