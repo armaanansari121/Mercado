@@ -26,7 +26,8 @@ export function MainMarket() {
     token_id: 0,
     creator: "",
   });
-  const [loading, setLoading] = useState(false);
+  const [Buyloading, setBuyLoading] = useState(false);
+  const [Sellloading, setSellLoading] = useState(false);
   const location = useLocation();
   const { ERC1155_CONTRACT, account } = useStateContext();
   const [metadata, setMetadata] = useState([]);
@@ -37,23 +38,24 @@ export function MainMarket() {
     const fetchMetadata = async () => {
       try {
         const totalIDs = await ERC1155_CONTRACT.methods.nextTokenId().call();
-        const totalNFTs = parseInt(totalIDs)-1;
+        const totalNFTs = parseInt(totalIDs) - 1;
         const metadataArray = [];
         for (let i = 1; i <= totalNFTs; i++) {
           const ipfsHash = await ERC1155_CONTRACT.methods.tokenIdToIpfsHash(i).call();
           const NFTDetails = await ERC1155_CONTRACT.methods.getMarketDetails(ipfsHash).call();
           const Metadata = await getMetadata(Gateway_url, ipfsHash);
-          
+          // fetching Updated price of NFT
+          const updatedPrice = await ERC1155_CONTRACT.methods.getNFTPrice(ipfsHash).call();
           metadataArray.push({
             name: NFTDetails[0],
             description: NFTDetails[1],
             theme: NFTDetails[2],
             image: Metadata.image,
             ipfsHash: ipfsHash,
-            price: Number(NFTDetails[4]),
+            price: Number(updatedPrice),
             perks: NFTDetails[5],
             creator: NFTDetails[6],
-            countNFTs:/* Number(NFTDetails[7]) */"",
+            countNFTs: /* Number(NFTDetails[7]) */ "",
             token_id: i,
           });
         }
@@ -103,17 +105,17 @@ export function MainMarket() {
   const handleBuy = async () => {
     if (selectedImageDetails.price && selectedImageDetails.image) {
       try {
-        setLoading(true);
+        setBuyLoading(true);
         const amount = parseInt(purchaseAmount);
 
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        await window.ethereum.request({ method: "eth_requestAccounts" });
 
         // Call the mint function of the contract
         const txn = await ERC1155_CONTRACT.methods
           .mint(selectedImageDetails.ipfsHash, amount)
           .send({ from: account });
 
-        setLoading(false);
+        setBuyLoading(false);
         alert("Purchase successful!");
 
         // Refresh metadata after purchase
@@ -122,7 +124,6 @@ export function MainMarket() {
           (item) => item.token_id === selectedImageDetails.token_id
         );
         if (index !== -1) {
-          
           setMetadata(updatedMetadata);
           setFilteredMetadata(
             location.search
@@ -133,7 +134,7 @@ export function MainMarket() {
           );
         }
       } catch (error) {
-        setLoading(false);
+        setBuyLoading(false);
         console.error("Error purchasing NFT:", error);
         alert("Error purchasing NFT. Please try again.");
       }
@@ -145,10 +146,8 @@ export function MainMarket() {
   const handleSell = async () => {
     if (selectedImageDetails.token_id) {
       try {
-        setLoading(true);
+        setSellLoading(true);
         const amount = parseInt(purchaseAmount);
-
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
 
         // Call the sell function of the contract
         const txn = await ERC1155_CONTRACT.methods
@@ -156,7 +155,7 @@ export function MainMarket() {
           .send({ from: account });
 
         console.log("Transaction Hash:", txn.transactionHash);
-        setLoading(false);
+        setSellLoading(false);
         alert("Sale successful!");
 
         // Refresh metadata after sale
@@ -165,7 +164,6 @@ export function MainMarket() {
           (item) => item.token_id === selectedImageDetails.token_id
         );
         if (index !== -1) {
-          
           setMetadata(updatedMetadata);
           setFilteredMetadata(
             location.search
@@ -176,7 +174,7 @@ export function MainMarket() {
           );
         }
       } catch (error) {
-        setLoading(false);
+        setSellLoading(false);
         console.error("Error selling NFT:", error);
         alert("Error selling NFT. Please try again.");
       }
@@ -195,9 +193,7 @@ export function MainMarket() {
         "relative overflow-hidden flex min-h-screen flex-col items-center justify-center z-[5000] bg-slate-950 w-full pt-20",
         backgroundImage && "bg-cover bg-center bg-no-repeat bg-fixed"
       )}
-      style={
-        backgroundImage ? { backgroundImage: `url(${backgroundImage})` } : {}
-      }
+      style={backgroundImage ? { backgroundImage: `url(${backgroundImage})` } : {}}
     >
       <div className="absolute inset-0 bg-black opacity-75 overflow-hidden"></div>
       <Navbar />
@@ -259,13 +255,15 @@ export function MainMarket() {
                   Name: <span className="text-neutral-500">{selectedImageDetails?.name}</span>
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">
-                  Description: <span className="text-neutral-500">{selectedImageDetails?.description}</span>
+                  Description:{" "}
+                  <span className="text-neutral-500">{selectedImageDetails?.description}</span>
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">
                   Price: <span className="text-neutral-500">{selectedImageDetails?.price} MEC</span>
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">
-                  MintedNFTs: <span className="text-neutral-500">{selectedImageDetails?.countNFTs}</span>
+                  MintedNFTs:{" "}
+                  <span className="text-neutral-500">{selectedImageDetails?.countNFTs}</span>
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">
                   Artist: <span className="text-neutral-500">{selectedImageDetails?.creator}</span>
@@ -292,50 +290,55 @@ export function MainMarket() {
                   }}
                 />
               </div>
+            <div className="flex gap-28 justify-center">
               <div className="Purchase flex justify-center items-center mt-4">
-                {loading ? (
-                  <div className="text-slate-100 flex justify-center items-center">
-                    <div
-                      className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
-                      role="status"
-                    ></div>
-                    <span>Loading...</span>
-                  </div>
-                ) : (
-                  <motion.button
-                    whileHover={{
-                      boxShadow: "0 0 10px 3px rgba(255, 255, 255, 0.7)",
-                    }}
-                    className="block my-4 p-2 text-white rounded-2xl"
-                    style={{ backgroundColor: "#92199f" }}
-                    onClick={handleBuy}
-                  >
-                    Buy
-                  </motion.button>
-                )}
-              </div>
-              <div className="Sell flex justify-center items-center mt-4">
-                {loading ? (
-                  <div className="text-slate-100 flex justify-center items-center">
-                    <div
-                      className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
-                      role="status"
-                    ></div>
-                    <span>Loading...</span>
-                  </div>
-                ) : (
-                  <motion.button
-                    whileHover={{
-                      boxShadow: "0 0 10px 3px rgba(255, 255, 255, 0.7)",
-                    }}
-                    className="block my-4 p-2 text-white rounded-2xl"
-                    style={{ backgroundColor: "#92199f" }}
-                    onClick={handleSell}
-                  >
-                    Sell
-                  </motion.button>
-                )}
-              </div>
+              {Buyloading ? (
+                <div className="text-slate-100 flex justify-center items-center">
+                  <div
+                    className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                    role="status"
+                  ></div>
+                  <span>Loading...</span>
+                </div>
+              ) : (
+                <motion.button
+                  whileHover={{
+                    boxShadow: "0 0 10px 3px rgba(255, 255, 255, 0.7)",
+                    transform: "translateY(-2px)",
+                  }}
+                  className="block my-4 p-3 px-6 text-white rounded-2xl hover:bg-[#7c1485] transition-all duration-200"
+                  style={{ backgroundColor: "#92199f" }}
+                  onClick={handleBuy}
+                >
+                  Buy
+                </motion.button>
+              )}
+            </div>
+            <div className="Sell flex justify-center items-center mt-4">
+              {Sellloading ? (
+                <div className="text-slate-100 flex justify-center items-center">
+                  <div
+                    className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                    role="status"
+                  ></div>
+                  <span>Loading...</span>
+                </div>
+              ) : (
+                <motion.button
+                  whileHover={{
+                    boxShadow: "0 0 10px 3px rgba(255, 255, 255, 0.7)",
+                    transform: "translateY(-2px)",
+                  }}
+                  className="block my-4 p-3 px-6 text-white rounded-2xl hover:bg-[#FF6B6B] transition-all duration-200"
+                  style={{ backgroundColor: "#FF4D4D" }}
+                  onClick={handleSell}
+                >
+                  Sell
+                </motion.button>
+              )}
+
+            </div>
+            </div>
             </>
           )}
         </div>
