@@ -28,7 +28,7 @@ import ERC1155_ABI from "../src/web3/ABIs/ERC1155_ABI.json";
 import Mercat_ABI from "../src/web3/ABIs/Mercat_ABI.json";
 import Artists_ABI from "../src/web3/ABIs/Artists_ABI.json";
 import { CreatorsRanking } from "./pages/CreatorsRanking";
-import { ArtistsListing } from "./pages/ArtistsListing";
+import  ArtistsListing  from "./pages/ArtistsListing";
 import ViewRequest from "./pages/ViewRequest";
 
 export const client = createThirdwebClient({
@@ -106,7 +106,7 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<LampDemo />} />
-          {/* <Route path="/CreatorsRanking" element={<CreatorsRanking />} /> */}
+          <Route path="/CreatorsRanking" element={<CreatorsRanking />} />
           <Route path="/ArtistsListing" element={<ArtistsListing />} />
           <Route path="/MainMarket" element={<MainMarket />} />
           <Route path="/Marketplace" element={<Marketplace />} />
@@ -115,7 +115,7 @@ function App() {
           <Route path="/contact" element={<LampDemo />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/createNFT" element={<CreateNFT />} />
-          {/* <Route path="/creatorProfile" element={<CreatorProfile />} /> */}
+          <Route path="/creatorProfile" element={<CreatorProfile />} />
           <Route path="/artistProfile" element={<ArtistProfile />} />
           <Route path="/ViewRequest" element={<ViewRequest />} />
         </Routes>
