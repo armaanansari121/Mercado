@@ -2,13 +2,19 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
+import "./Mercat.sol";
+import "./Artists.sol";
 
-contract ConstantProductERC1155Pricing is ERC1155, Ownable, ReentrancyGuard, Pausable {
-    ERC20 public mercatToken;
+contract ConstantProductERC1155Pricing is
+    ERC1155,
+    Ownable,
+    ReentrancyGuard,
+    Pausable
+{
+    Mercat public mercatToken;
 
     uint256 private constant SCALE = 1e6;
     uint256 private constant INITIAL_MERCAT_BALANCE = 1000000 * 1e18; // 1 million MERCAT
@@ -18,13 +24,16 @@ contract ConstantProductERC1155Pricing is ERC1155, Ownable, ReentrancyGuard, Pau
         uint256 mercatBalance;
         uint256 nftBalance;
         // Add any additional fields as needed
+
         string name;
         string description;
         string theme;
         string image; // IPFS hash for the image of the NFT marketplace
         uint256 price;
         string perks;
-        address Artist;
+        address artist;
+        //Managing count of NFts in circulation
+        uint256 countNFTs;
     }
 
     // Global token ID counter
@@ -48,35 +57,92 @@ contract ConstantProductERC1155Pricing is ERC1155, Ownable, ReentrancyGuard, Pau
 
     uint256 public constant ETH_TO_MERCAT_RATE = 100000; // 1 ETH = 100000 MERCAT
 
-    event NFTMinted(address indexed to, uint256 indexed tokenId, uint256 amount, uint256 price, uint256 fee);
-    event NFTSold(address indexed from, uint256 indexed tokenId, uint256 amount, uint256 price, uint256 fee);
-    event FeesUpdated(uint256 newFeePercentage, uint256 newOwnerFeePercentage, uint256 newMarketFeePercentage);
+    event NFTMinted(
+        address indexed to,
+        uint256 indexed tokenId,
+        uint256 amount,
+        uint256 price,
+        uint256 fee
+    );
+    event NFTSold(
+        address indexed from,
+        uint256 indexed tokenId,
+        uint256 amount,
+        uint256 price,
+        uint256 fee
+    );
+    event FeesUpdated(
+        uint256 newFeePercentage,
+        uint256 newOwnerFeePercentage,
+        uint256 newMarketFeePercentage
+    );
     event MaxPriceImpactUpdated(uint256 newMaxPriceImpact);
-    event ETHToMERCATConverted(address indexed user, uint256 ethAmount, uint256 mercatAmount);
-    event MERCATToETHConverted(address indexed user, uint256 mercatAmount, uint256 ethAmount);
+    event ETHToMERCATConverted(
+        address indexed user,
+        uint256 ethAmount,
+        uint256 mercatAmount
+    );
+    event MERCATToETHConverted(
+        address indexed user,
+        uint256 mercatAmount,
+        uint256 ethAmount
+    );
     event MarketInitialized(string ipfsHash, uint256 tokenId);
 
-    constructor(address _mercatTokenAddress, string memory _baseUri) ERC1155(_baseUri) Ownable(msg.sender) {
-        mercatToken = ERC20(_mercatTokenAddress);
+    constructor(address _mercatTokenAddress, string memory _baseUri)
+        ERC1155(_baseUri)
+        Ownable(msg.sender)
+    {
+        mercatToken = Mercat(_mercatTokenAddress);
     }
 
-    function initializeMarket(string memory ipfsHash,string memory name,string memory description,string memory theme,uint256 price,string memory perks) public {
+    function initializeMarket(
+        address artist,
+        string memory ipfsHash,
+        string memory name,
+        string memory description,
+        string memory theme,
+        uint256 price,
+        string memory perks
+    ) public {
         require(!marketInitialized[ipfsHash], "Market already initialized");
-        marketBalances[ipfsHash] = Market(INITIAL_MERCAT_BALANCE, INITIAL_NFT_BALANCE,name,description,theme,ipfsHash,price,perks,msg.sender);
+        marketBalances[ipfsHash] = Market(
+            INITIAL_MERCAT_BALANCE,
+            INITIAL_NFT_BALANCE,
+            name,
+            description,
+            theme,
+            ipfsHash,
+            price,
+            perks,
+            artist,
+            0
+        );
         marketInitialized[ipfsHash] = true;
         // marketOwner[msg.sender].push(marketBalances[ipfsHash]);
+        mercatToken.burn(artist, 150 * 10**18);
         // Associate the new token ID with the IPFS hash
         tokenIdToIpfsHash[nextTokenId] = ipfsHash;
         emit MarketInitialized(ipfsHash, nextTokenId);
         nextTokenId++;
     }
 
-    function setFees(uint256 _feePercentage, uint256 _ownerFeePercentage) external onlyOwner {
-        require(_feePercentage >= _ownerFeePercentage, "Owner fee cannot exceed total fee");
+    function setFees(uint256 _feePercentage, uint256 _ownerFeePercentage)
+        external
+        onlyOwner
+    {
+        require(
+            _feePercentage >= _ownerFeePercentage,
+            "Owner fee cannot exceed total fee"
+        );
         feePercentage = _feePercentage;
         ownerFeePercentage = _ownerFeePercentage;
         marketFeePercentage = _feePercentage - _ownerFeePercentage;
-        emit FeesUpdated(feePercentage, ownerFeePercentage, marketFeePercentage);
+        emit FeesUpdated(
+            feePercentage,
+            ownerFeePercentage,
+            marketFeePercentage
+        );
     }
 
     function setMaxPriceImpact(uint256 _maxPriceImpact) external onlyOwner {
@@ -84,19 +150,23 @@ contract ConstantProductERC1155Pricing is ERC1155, Ownable, ReentrancyGuard, Pau
         emit MaxPriceImpactUpdated(maxPriceImpact);
     }
 
-    function mint(string memory ipfsHash, uint256 amount) public nonReentrant whenNotPaused {
+    function mint(ArtistStorage artistStorage ,string memory ipfsHash, uint256 amount)
+        public
+        nonReentrant
+        whenNotPaused
+    {
         require(marketInitialized[ipfsHash], "Market not initialized");
         Market storage market = marketBalances[ipfsHash];
 
         uint256 basePrice = market.price;
         uint256 fee = (basePrice * feePercentage) / 100;
-        uint256 totalPrice = basePrice + fee;
+        uint256 totalPrice = (basePrice + fee) * 10**18;
 
         uint256 priceImpact = calculatePriceImpact(ipfsHash, true, basePrice);
         require(priceImpact <= maxPriceImpact, "Price impact too high");
 
-        require(mercatToken.transferFrom(msg.sender, address(this), totalPrice), "MERCAT transfer failed");
-
+        mercatToken.burn(msg.sender, totalPrice);
+        // require(mercatToken.balanceOf(msg.sender) >= totalPrice,"you do not have enough Mercat" );
         uint256 ownerFee = (fee * ownerFeePercentage) / feePercentage;
         uint256 marketFee = fee - ownerFee;
 
@@ -107,14 +177,23 @@ contract ConstantProductERC1155Pricing is ERC1155, Ownable, ReentrancyGuard, Pau
         // Find the token ID associated with this IPFS hash
         uint256 tokenId = getTokenIdFromIpfsHash(ipfsHash);
         _mint(msg.sender, tokenId, amount, "");
+        market.countNFTs = market.countNFTs + amount;
 
+        artistStorage.updateArtistReputation(market.artist);
         emit NFTMinted(msg.sender, tokenId, amount, basePrice, fee);
     }
 
-    function sell(string memory ipfsHash, uint256 amount) public nonReentrant whenNotPaused {
+    function sell(ArtistStorage artistStorage, string memory ipfsHash, uint256 amount)
+        public
+        nonReentrant
+        whenNotPaused
+    {
         require(marketInitialized[ipfsHash], "Market not initialized");
         uint256 tokenId = getTokenIdFromIpfsHash(ipfsHash);
-        require(balanceOf(msg.sender, tokenId) >= amount, "Insufficient balance");
+        require(
+            balanceOf(msg.sender, tokenId) >= amount,
+            "Insufficient balance"
+        );
 
         Market storage market = marketBalances[ipfsHash];
 
@@ -124,8 +203,10 @@ contract ConstantProductERC1155Pricing is ERC1155, Ownable, ReentrancyGuard, Pau
 
         uint256 priceImpact = calculatePriceImpact(ipfsHash, false, basePrice);
         require(priceImpact <= maxPriceImpact, "Price impact too high");
+        mercatToken.mint(msg.sender, totalPrice);
 
         _burn(msg.sender, tokenId, amount);
+        market.countNFTs = market.countNFTs - amount;
 
         uint256 ownerFee = (fee * ownerFeePercentage) / feePercentage;
         uint256 marketFee = fee - ownerFee;
@@ -134,24 +215,53 @@ contract ConstantProductERC1155Pricing is ERC1155, Ownable, ReentrancyGuard, Pau
         ownerFees += ownerFee;
         market.nftBalance += SCALE;
 
-        require(mercatToken.transfer(msg.sender, totalPrice), "MERCAT transfer failed");
-
+        artistStorage.updateArtistReputation(market.artist);
         emit NFTSold(msg.sender, tokenId, amount, basePrice, fee);
     }
 
-    function getMarketDetails(string memory ipfsHash) public view returns (string memory name, string memory description, string memory theme, string memory image, uint256 price, string memory perks, address artist) {
+    function getMarketDetails(string memory ipfsHash)
+        public
+        view
+        returns (
+            string memory name,
+            string memory description,
+            string memory theme,
+            string memory image,
+            uint256 price,
+            string memory perks,
+            address artist,
+            uint256 countNFTs
+        )
+    {
         require(marketInitialized[ipfsHash], "Market not initialized");
         Market storage market = marketBalances[ipfsHash];
-        return (market.name, market.description, market.theme, market.image, market.price, market.perks, market.Artist);
+        return (
+            market.name,
+            market.description,
+            market.theme,
+            market.image,
+            market.price,
+            market.perks,
+            market.artist,
+            market.countNFTs
+        );
     }
 
-    function getNFTPrice(string memory ipfsHash) public view returns (uint256 price) {
+    function getNFTPrice(string memory ipfsHash)
+        public
+        view
+        returns (uint256 price)
+    {
         require(marketInitialized[ipfsHash], "Market not initialized");
         Market storage balance = marketBalances[ipfsHash];
         price = (balance.mercatBalance * SCALE) / balance.nftBalance;
     }
 
-    function getMERCATPrice(string memory ipfsHash) public view returns (uint256 price) {
+    function getMERCATPrice(string memory ipfsHash)
+        public
+        view
+        returns (uint256 price)
+    {
         require(marketInitialized[ipfsHash], "Market not initialized");
         Market storage balance = marketBalances[ipfsHash];
         price = (balance.mercatBalance * SCALE) / (balance.nftBalance + SCALE);
@@ -160,15 +270,21 @@ contract ConstantProductERC1155Pricing is ERC1155, Ownable, ReentrancyGuard, Pau
     function getK(string memory ipfsHash) public view returns (uint256 k) {
         require(marketInitialized[ipfsHash], "Market not initialized");
         Market storage balance = marketBalances[ipfsHash];
-        k = balance.mercatBalance * balance.nftBalance / SCALE;
+        k = (balance.mercatBalance * balance.nftBalance) / SCALE;
     }
 
-    function calculatePriceImpact(string memory ipfsHash, bool isMinting, uint256 amount) public view returns (uint256) {
+    function calculatePriceImpact(
+        string memory ipfsHash,
+        bool isMinting,
+        uint256 amount
+    ) public view returns (uint256) {
         require(marketInitialized[ipfsHash], "Market not initialized");
         Market storage balance = marketBalances[ipfsHash];
-        uint256 startPrice = isMinting ? getNFTPrice(ipfsHash) : getMERCATPrice(ipfsHash);
+        uint256 startPrice = isMinting
+            ? getNFTPrice(ipfsHash)
+            : getMERCATPrice(ipfsHash);
         uint256 endPrice;
-        
+
         if (isMinting) {
             uint256 newMercatBalance = balance.mercatBalance + amount;
             uint256 newNftBalance = balance.nftBalance - SCALE;
@@ -178,13 +294,25 @@ contract ConstantProductERC1155Pricing is ERC1155, Ownable, ReentrancyGuard, Pau
             uint256 newNftBalance = balance.nftBalance + SCALE;
             endPrice = (newMercatBalance * SCALE) / (newNftBalance + SCALE);
         }
-        
-        return ((endPrice > startPrice ? endPrice - startPrice : startPrice - endPrice) * 100) / startPrice;
+
+        return
+            ((
+                endPrice > startPrice
+                    ? endPrice - startPrice
+                    : startPrice - endPrice
+            ) * 100) / startPrice;
     }
 
-    function getTokenIdFromIpfsHash(string memory ipfsHash) public view returns (uint256) {
+    function getTokenIdFromIpfsHash(string memory ipfsHash)
+        public
+        view
+        returns (uint256)
+    {
         for (uint256 i = 1; i < nextTokenId; i++) {
-            if (keccak256(bytes(tokenIdToIpfsHash[i])) == keccak256(bytes(ipfsHash))) {
+            if (
+                keccak256(bytes(tokenIdToIpfsHash[i])) ==
+                keccak256(bytes(ipfsHash))
+            ) {
                 return i;
             }
         }
@@ -194,18 +322,19 @@ contract ConstantProductERC1155Pricing is ERC1155, Ownable, ReentrancyGuard, Pau
     function withdrawOwnerFees() public onlyOwner {
         uint256 amount = ownerFees;
         ownerFees = 0;
-        require(mercatToken.transfer(owner(), amount), "MERCAT transfer failed");
+        require(
+            mercatToken.transfer(owner(), amount),
+            "MERCAT transfer failed"
+        );
     }
 
     function convertETHToMERCAT() public payable nonReentrant {
         require(msg.value > 0, "Must send ETH");
         uint256 mercatAmount = (msg.value * ETH_TO_MERCAT_RATE);
-        require(mercatToken.balanceOf(address(this)) >= mercatAmount, "Insufficient MERCAT balance");
-        
+
         ethReserve += msg.value;
-        require(mercatToken.approve(msg.sender, mercatAmount),"MERCAT approve failed");
-        require( mercatToken.transfer(msg.sender, mercatAmount), "MERCAT transfer failed");
-        
+        mercatToken.mint(msg.sender, mercatAmount);
+
         emit ETHToMERCATConverted(msg.sender, msg.value, mercatAmount);
     }
 
@@ -213,13 +342,13 @@ contract ConstantProductERC1155Pricing is ERC1155, Ownable, ReentrancyGuard, Pau
         require(mercatAmount > 0, "Must convert non-zero amount");
         uint256 ethAmount = mercatAmount / ETH_TO_MERCAT_RATE;
         require(ethReserve >= ethAmount, "Insufficient ETH reserve");
-        
-        require(mercatToken.transferFrom(msg.sender, address(this), mercatAmount), "MERCAT transfer failed");
+
+        mercatToken.burn(msg.sender, mercatAmount);
         ethReserve -= ethAmount;
-        
+
         (bool success, ) = payable(msg.sender).call{value: ethAmount}("");
         require(success, "ETH transfer failed");
-        
+
         emit MERCATToETHConverted(msg.sender, mercatAmount, ethAmount);
     }
 

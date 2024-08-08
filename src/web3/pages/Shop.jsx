@@ -55,7 +55,7 @@ const Shop = () => {
             </h1>
             {errorMessage && <p className="text-red-500">{errorMessage}</p>}
             <h2 className="mb-4 text-slate-500 text-xl">
-              Price: 1 ETH = 1000 MEC
+              Price: 1 ETH = 100000 MEC
             </h2>
 
             <h2 className="text-slate-500 mb-4">
