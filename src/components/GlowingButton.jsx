@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import PropTypes from 'prop-types';
-//import { useStateContext } from "../contexts";
+import { useStateContext } from "../contexts";
 const GlowingButton = ({ text }) => {
-  //const {MercatContract, account,ERC1155_CONTRACT} = useStateContext();
+  const {MercatContract, account,ERC1155_CONTRACT} = useStateContext();
 
   // const handlePurchase = async () => {
   //   if(!MercatContract || !account){
