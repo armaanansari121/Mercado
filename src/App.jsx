@@ -5,8 +5,8 @@ import React, { useEffect } from "react";
 import { ThirdwebProvider } from "thirdweb/react";
 import { LampDemo } from "./components/LampDemo";
 import { Navbar } from "./components/Navbar";
-import {Home} from "./pages/Home";
-import Web3 from "web3"
+import { Home } from "./pages/Home";
+import Web3 from "web3";
 import { createThirdwebClient, getContract, resolveMethod } from "thirdweb";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useStateContext } from "./contexts";
@@ -19,14 +19,17 @@ import ArtistProfile from "./pages/ArtistProfile";
 import CreatorProfile from "./pages/CreatorProfile";
 import { Marketplace } from "./pages/Marketplace";
 import { MainMarket } from "./pages/MainMarket";
-import { ERC1155_CONTRACT_ADDRESS, MERCAT_CONTRACT_ADDRESS } from "./web3/constants";
+import {
+  ERC1155_CONTRACT_ADDRESS,
+  MERCAT_CONTRACT_ADDRESS,
+  ARTISTS_CONTRACT_ADDRESS,
+} from "./web3/constants";
 import ERC1155_ABI from "../src/web3/ABIs/ERC1155_ABI.json";
 import Mercat_ABI from "../src/web3/ABIs/Mercat_ABI.json";
+import Artists_ABI from "../src/web3/ABIs/Artists_ABI.json";
 import { CreatorsRanking } from "./pages/CreatorsRanking";
 import { ArtistsListing } from "./pages/ArtistsListing";
 import ViewRequest from "./pages/ViewRequest";
-
-
 
 export const client = createThirdwebClient({
   clientId: "279bdbf9028501a51bf797ada51321ac",
@@ -52,34 +55,12 @@ window.ethereum.on("chainChanged", (chainId) => {
 });
 
 function App() {
-
-  const { setERC1155_CONTRACT, setAccount,setMercatContract } = useStateContext();
-
-  useEffect(() => {
-    // Check MetaMask availability and initialize web3
-    const initializeWeb3 = async () => {
-        if (typeof window.ethereum !== "undefined") {
-            const web3 = new Web3(window.ethereum);
-            try {
-                await window.ethereum.request({ method: "eth_requestAccounts" });
-                const accounts = await web3.eth.getAccounts();
-                setAccount(accounts[0]);
-                const contract = new web3.eth.Contract(
-                    ERC1155_ABI,
-                    ERC1155_CONTRACT_ADDRESS
-                );
-                setERC1155_CONTRACT(contract);
-            } catch (error) {
-                console.error(error);
-            }
-        } else {
-            alert("Please install MetaMask");
-        }
-    };
-    initializeWeb3();
-  }, []);
-
-
+  const {
+    setERC1155_CONTRACT,
+    setAccount,
+    setArtistsContract,
+    setMercatContract,
+  } = useStateContext();
   useEffect(() => {
     const initializeWeb3 = async () => {
       if (typeof window.ethereum !== "undefined") {
@@ -88,22 +69,36 @@ function App() {
           await window.ethereum.request({ method: "eth_requestAccounts" });
           const accounts = await web3.eth.getAccounts();
           setAccount(accounts[0]);
-          const contract = new web3.eth.Contract(
+
+          // Initialize ERC1155 contract
+          const erc1155Contract = new web3.eth.Contract(
+            ERC1155_ABI,
+            ERC1155_CONTRACT_ADDRESS
+          );
+          setERC1155_CONTRACT(erc1155Contract);
+
+          // Initialize Mercat contract
+          const mercatContract = new web3.eth.Contract(
             Mercat_ABI,
             MERCAT_CONTRACT_ADDRESS
           );
-          setMercatContract(contract);
+          setMercatContract(mercatContract);
+
+          // Initialize Artists contract
+          const artistsContract = new web3.eth.Contract(
+            Artists_ABI,
+            ARTISTS_CONTRACT_ADDRESS
+          );
+          setArtistsContract(artistsContract);
         } catch (error) {
           console.error(error);
         }
       } else {
-        alert("Please install Metamask");
+        alert("Please install MetaMask");
       }
     };
     initializeWeb3();
   }, []);
-
-
 
   return (
     <ThirdwebProvider client={client}>
@@ -122,12 +117,10 @@ function App() {
           <Route path="/createNFT" element={<CreateNFT />} />
           {/* <Route path="/creatorProfile" element={<CreatorProfile />} /> */}
           <Route path="/artistProfile" element={<ArtistProfile />} />
-          <Route path="/ViewRequest" element={<ViewRequest/>}/>
+          <Route path="/ViewRequest" element={<ViewRequest />} />
         </Routes>
 
         <ConnectWalletButton />
-
-        
       </div>
     </ThirdwebProvider>
   );
