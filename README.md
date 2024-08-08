@@ -1,10 +1,35 @@
 # Mercado: Forging Digital Legacies
 
+
 ## Empowering Creators, Redefining Value
 
 Mercado stands at the forefront of innovation in the NFT space, offering a sophisticated marketplace that transcends traditional boundaries. By harnessing the power of blockchain technology and implementing state-of-the-art smart contracts, Mercado creates an unparalleled ecosystem for digital assets across art, gaming, music, and beyond.
 
-## Transformative Features
+
+## Addressing Market Imperatives (Problems Addressed)
+
+1. **Global Creative Nexus**: Eliminates geographical constraints, connecting diverse artists with a worldwide audience.
+
+2. **Equitable Asset Valuation**: Deploys cutting-edge algorithms to ensure digital assets are priced according to real-time market forces.
+
+3. **Meritocratic Exposure**: Levels the playing field, allowing emerging artists to gain recognition based on talent rather than pre-existing fame.
+
+4. **Unprecedented Customization**: Grants creators unparalleled control over their digital presence and brand representation.
+
+5. **Streamlined Commissioning**: Revolutionizes the custom art market by providing a secure, efficient platform for bespoke digital creations.
+
+6. **Trust-Centric Ecosystem**: Establishes a robust reputation system, fostering a high-integrity environment for all participants.
+
+7. **Seamless Onboarding**: Simplifies entry for newcomers through intuitive ETH-to-MERCAT conversion processes.
+
+8. **Community-Driven Growth**: Fosters a dynamic, interactive community that drives long-term platform engagement and value creation.
+
+9. **Portfolio Diversification**: Offers collectors unprecedented access to a wide array of digital assets, enabling strategic portfolio construction.
+
+10. **Economic Paradigm Shift**: Creates novel revenue streams for digital creators, catalyzing a new era of creative economics.
+
+
+## Transformative Features (Solution)
 
 ### 1. Advanced Dynamic Pricing Algorithm
 
@@ -47,27 +72,19 @@ Mercado stands at the forefront of innovation in the NFT space, offering a sophi
 - Delivers unique, value-added benefits to NFT holders
 - Cultivates an exclusive, engaged community of creators and collectors
 
-## Addressing Market Imperatives
+## Tech Stack:
 
-1. **Global Creative Nexus**: Eliminates geographical constraints, connecting diverse artists with a worldwide audience.
-
-2. **Equitable Asset Valuation**: Deploys cutting-edge algorithms to ensure digital assets are priced according to real-time market forces.
-
-3. **Meritocratic Exposure**: Levels the playing field, allowing emerging artists to gain recognition based on talent rather than pre-existing fame.
-
-4. **Unprecedented Customization**: Grants creators unparalleled control over their digital presence and brand representation.
-
-5. **Streamlined Commissioning**: Revolutionizes the custom art market by providing a secure, efficient platform for bespoke digital creations.
-
-6. **Trust-Centric Ecosystem**: Establishes a robust reputation system, fostering a high-integrity environment for all participants.
-
-7. **Seamless Onboarding**: Simplifies entry for newcomers through intuitive ETH-to-MERCAT conversion processes.
-
-8. **Community-Driven Growth**: Fosters a dynamic, interactive community that drives long-term platform engagement and value creation.
-
-9. **Portfolio Diversification**: Offers collectors unprecedented access to a wide array of digital assets, enabling strategic portfolio construction.
-
-10. **Economic Paradigm Shift**: Creates novel revenue streams for digital creators, catalyzing a new era of creative economics.
+- React.js
+- Spline
+- Chart.js
+- Solidity
+- zkEVM
+- Reactive Smart Contracts
+- openZeppeline
+- ERC20
+- ERC1155
+- Tailwind
+- Foundry
 
 ## Acknowledgements
 
