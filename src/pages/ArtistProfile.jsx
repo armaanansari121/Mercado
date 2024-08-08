@@ -11,7 +11,9 @@ import { Input } from "../ui/input";
 const ArtistProfile = () => {
   const { ArtistsContract, ERC1155_CONTRACT, account } = useStateContext();
   const [metadata, setMetadata] = useState([]);
+  // console.log(metadata);
   // const [profileImage, setProfileImage] = useState(null);
+  const address0 = "0x0000000000000000000000000000000000000000";
   const [artist, setArtist] = useState({
     name: "",
     wallet: "",
@@ -20,20 +22,22 @@ const ArtistProfile = () => {
     reputation: 0,
   });
   const [isRegistered, setIsRegistered] = useState(false);
-  console.log(account);
+  // console.log(account);
   useEffect(() => {
     const fetchArtistInfo = async () => {
       try {
         const { name, wallet, artCollection, nftMarkets, reputation } =
           await ArtistsContract.methods.getArtist(account).call();
-        setArtist({
-          name,
-          wallet,
-          artCollection,
-          nftMarkets,
-          reputation,
-        });
-        setIsRegistered(true);
+          console.log(nftMarkets)
+        if(wallet === address0) throw new Error("Artist not registered");
+          setIsRegistered(true);
+          setArtist({
+            name,
+            wallet,
+            artCollection,
+            nftMarkets,
+            reputation,
+          });
       } catch (error) {
         console.error("Error fetching artist information:", error);
       }

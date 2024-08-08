@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { getMetadata } from "../../utils/web3Helpers";
 
 function CreateNFT() {
-  const { ERC1155_CONTRACT, account } = useStateContext();
+  const { ERC1155_CONTRACT, account,ArtistsContract } = useStateContext();
 
   const [loading, setLoading] = useState(false);
   const [ipfsHash, setIpfsHash] = useState("");
@@ -28,8 +28,8 @@ function CreateNFT() {
     if (metadataHash && account) {
       setLoading(true);
       try {
-        await ERC1155_CONTRACT.methods.
-        initializeMarket( metadataHash,metadataFields.name,metadataFields.description,metadataFields.theme,metadataFields.price,metadataFields.perks)
+        await ArtistsContract.methods.
+        addMarket( metadataHash,metadataFields.name,metadataFields.description,metadataFields.theme,metadataFields.price,metadataFields.perks)
           .send({ from: account });
         setLoading(false);
         alert("NFTs Created successfully!");

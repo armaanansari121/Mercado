@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "./Market.sol";
+import "./ConstantProductERC1155Pricing.sol";
+import "./Mercat.sol";
 
 contract ArtistStorage {
     ConstantProductERC1155Pricing public marketplace;
+    Mercat public merkatToken;
 
     struct Artist {
         string name;
@@ -72,8 +74,9 @@ contract ArtistStorage {
         string ipfsHash
     );
 
-    constructor(address payable _marketplaceAddress) {
+    constructor(address payable _marketplaceAddress,address _merkatAddress) {
         marketplace = ConstantProductERC1155Pricing(_marketplaceAddress);
+        merkatToken= Mercat(_merkatAddress);
     }
 
     function addMarket(
@@ -188,8 +191,13 @@ contract ArtistStorage {
         );
 
         ArtOption storage selectedOption = artOptions[_requestId][_optionIndex];
+        // Mint the NFT to the artist's wallet
+        merkatToken.burn(msg.sender,request.price);
+        merkatToken.mint(selectedOption.creator,request.price);
         request.fulfilled = true;
         fulfilledRequests[_requestId] = selectedOption.ipfsHash;
+
+
 
         // Add the new NFT to the artist's collection
         artists[msg.sender].artCollection.push(selectedOption.ipfsHash);
@@ -198,6 +206,7 @@ contract ArtistStorage {
         );
 
         updateCreatorReputation(selectedOption.creator);
+
 
         emit RequestFulfilled(
             _requestId,
