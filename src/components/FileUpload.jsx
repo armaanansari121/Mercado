@@ -201,7 +201,7 @@ function FileUpload({
             className="block my-4 p-2 text-white rounded-2xl"
             style={{ backgroundColor: "#0000008f" }}
           >
-            Submit
+            Submit  
           </motion.button>
         </>
       )}
