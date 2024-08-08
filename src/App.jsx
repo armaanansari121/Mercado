@@ -15,16 +15,16 @@ import ConnectWalletButton from "./components/ConectButton";
 import CreateNFT from "./web3/pages/CreateNFT";
 // create the client with your clientId, or secretKey if in a server environment
 
-import ArtistProfile from "./Pages/ArtistProfile";
-import CreatorProfile from "./Pages/CreatorProfile";
-import { Marketplace } from "./Pages/Marketplace";
-import { MainMarket } from "./Pages/MainMarket";
+import ArtistProfile from "./pages/ArtistProfile";
+import CreatorProfile from "./pages/CreatorProfile";
+import { Marketplace } from "./pages/Marketplace";
+import { MainMarket } from "./pages/MainMarket";
 import { ERC1155_CONTRACT_ADDRESS, MERCAT_CONTRACT_ADDRESS } from "./web3/constants";
 import ERC1155_ABI from "../src/web3/ABIs/ERC1155_ABI.json";
 import Mercat_ABI from "../src/web3/ABIs/Mercat_ABI.json";
-import { CreatorsRanking } from "./Pages/CreatorsRanking";
-import { ArtistsListing } from "./Pages/ArtistsListing";
-import ViewRequest from "./Pages/ViewRequest";
+import { CreatorsRanking } from "./pages/CreatorsRanking";
+import { ArtistsListing } from "./pages/ArtistsListing";
+import ViewRequest from "./pages/ViewRequest";
 
 
 

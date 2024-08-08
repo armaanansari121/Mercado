@@ -15,16 +15,24 @@ function CreateNFT() {
   const [previewImage, setPreviewImage] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [metadata, setMetadata] = useState({});
+  const [metadataFields, setMetadataFields] = useState({
+    name: "",
+    description: "",
+    theme: "",
+    price: "", // New field for NFT price
+    // array of string for perks
+    perks: "",
+  });
 
   const handleMintNFT = async () => {
     if (metadataHash && account) {
       setLoading(true);
       try {
-        await ERC1155_CONTRACT.methods
-          .mint(account, quantity, metadataHash)
+        await ERC1155_CONTRACT.methods.
+        initializeMarket( metadataHash,metadataFields.name,metadataFields.description,metadataFields.theme,metadataFields.price,metadataFields.perks)
           .send({ from: account });
         setLoading(false);
-        alert("NFTs Minted successfully!");
+        alert("NFTs Created successfully!");
       } catch (error) {
         setError(error.message);
         setLoading(false);
@@ -39,8 +47,7 @@ function CreateNFT() {
         .catch((error) => setError(error.message));
     }
   }, [metadataHash]);
-console.log("metadata",metadata)
-console.log("metadataHash",metadataHash)
+
   return (
     <div className="abc bg-gray-900 min-h-screen flex items-center justify-center">
       <div
@@ -63,15 +70,12 @@ console.log("metadataHash",metadataHash)
               metadataHash={metadataHash}
               setMetadataHash={setMetadataHash}
               setPreviewImage={setPreviewImage}
+              metadataFields={metadataFields}
+              setMetadataFields={setMetadataFields}
             />
             {metadataHash && (
               <>
-                <input
-                  type="number"
-                  className="mt-4 w-full px-3 py-2 border border-gray-300 rounded"
-                  placeholder="Enter quantity"
-                  onChange={(e) => setQuantity(parseInt(e.target.value))}
-                />
+                
                 <motion.button
                   whileHover={{
                     boxShadow: "0 0 10px 3px rgba(255, 255, 255, 0.7)",
@@ -81,7 +85,7 @@ console.log("metadataHash",metadataHash)
                   style={{ backgroundColor: "#0000008f" }}
                   disabled={!metadataHash || !account}
                 >
-                  {loading ? "Minting NFT..." : "Mint NFT"}
+                  {loading ? "Creating NFT..." : "Create NFT"}
                 </motion.button>
               </>
             )}

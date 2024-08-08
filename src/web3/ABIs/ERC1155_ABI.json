@@ -140,6 +140,44 @@
 	{
 		"inputs": [
 			{
+				"internalType": "string",
+				"name": "ipfsHash",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "theme",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "perks",
+				"type": "string"
+			}
+		],
+		"name": "initializeMarket",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "address",
 				"name": "owner",
 				"type": "address"
@@ -235,19 +273,6 @@
 		"type": "event"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
-			}
-		],
-		"name": "initializeToken",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -277,6 +302,25 @@
 		"inputs": [
 			{
 				"indexed": false,
+				"internalType": "string",
+				"name": "ipfsHash",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "MarketInitialized",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
 				"internalType": "uint256",
 				"name": "newMaxPriceImpact",
 				"type": "uint256"
@@ -288,9 +332,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
+				"internalType": "string",
+				"name": "ipfsHash",
+				"type": "string"
 			},
 			{
 				"internalType": "uint256",
@@ -492,9 +536,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
+				"internalType": "string",
+				"name": "ipfsHash",
+				"type": "string"
 			},
 			{
 				"internalType": "uint256",
@@ -684,6 +728,13 @@
 	},
 	{
 		"inputs": [],
+		"name": "withdrawEther",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "withdrawOwnerFees",
 		"outputs": [],
 		"stateMutability": "nonpayable",
@@ -744,9 +795,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
+				"internalType": "string",
+				"name": "ipfsHash",
+				"type": "string"
 			},
 			{
 				"internalType": "bool",
@@ -812,9 +863,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
+				"internalType": "string",
+				"name": "ipfsHash",
+				"type": "string"
 			}
 		],
 		"name": "getK",
@@ -831,9 +882,58 @@
 	{
 		"inputs": [
 			{
+				"internalType": "string",
+				"name": "ipfsHash",
+				"type": "string"
+			}
+		],
+		"name": "getMarketDetails",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "theme",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "image",
+				"type": "string"
+			},
+			{
 				"internalType": "uint256",
-				"name": "tokenId",
+				"name": "price",
 				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "perks",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "artist",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "ipfsHash",
+				"type": "string"
 			}
 		],
 		"name": "getMERCATPrice",
@@ -850,9 +950,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
+				"internalType": "string",
+				"name": "ipfsHash",
+				"type": "string"
 			}
 		],
 		"name": "getNFTPrice",
@@ -860,6 +960,25 @@
 			{
 				"internalType": "uint256",
 				"name": "price",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "ipfsHash",
+				"type": "string"
+			}
+		],
+		"name": "getTokenIdFromIpfsHash",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
 				"type": "uint256"
 			}
 		],
@@ -891,6 +1010,70 @@
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"name": "marketBalances",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "mercatBalance",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "nftBalance",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "description",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "theme",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "image",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "perks",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "Artist",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "countNFTs",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "marketFeePercentage",
 		"outputs": [
@@ -898,6 +1081,25 @@
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"name": "marketInitialized",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -921,9 +1123,22 @@
 		"name": "mercatToken",
 		"outputs": [
 			{
-				"internalType": "contract ERC20",
+				"internalType": "contract Mercat",
 				"name": "",
 				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "nextTokenId",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -1008,36 +1223,12 @@
 				"type": "uint256"
 			}
 		],
-		"name": "tokenBalances",
+		"name": "tokenIdToIpfsHash",
 		"outputs": [
 			{
-				"internalType": "uint256",
-				"name": "mercatBalance",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "nftBalance",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
+				"internalType": "string",
 				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "tokenInitialized",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
+				"type": "string"
 			}
 		],
 		"stateMutability": "view",
