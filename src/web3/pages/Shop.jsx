@@ -47,7 +47,7 @@ const Shop = () => {
     <>
         <Spline
         className="absolute top-0 right-0 bottom-0 left-0 "
-        scene="https://prod.spline.design/tHRctOE2M1c4bO6u/scene.splinecode"
+        scene="https://prod.spline.design/5NCd3ur4F04VjwXu/scene.splinecode" 
       />
     <div className="min-h-screen flex items-center justify-center bg-gray-900 z-[5000]">
       <BackgroundGradientDemo>
