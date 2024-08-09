@@ -142,35 +142,32 @@ contract ConstantProductERC1155Pricing is
         );
     }
 
-    function mint(ArtistStorage artistStorage ,string memory ipfsHash, uint256 amount)
-        public
-        nonReentrant
-        whenNotPaused
-    {
+    function mint(
+        ArtistStorage artistStorage,
+        string memory ipfsHash,
+        uint256 amount
+    ) public nonReentrant whenNotPaused {
         require(marketInitialized[ipfsHash], "Market not initialized");
         Market storage market = marketBalances[ipfsHash];
 
-        uint kn=getK(ipfsHash);
-        if(kn==1)
-        {
-            kn=kn*(10**6);
+        uint256 kn = getK(ipfsHash);
+        if (kn == 1) {
+            kn = kn * (10**6);
         }
-        market.nftBalance+=amount;
-        market.mercatBalance=(kn/(market.nftBalance));    
-        uint256 basePrice = (market.price)*(10**6) + market.mercatBalance;
+        market.nftBalance += amount;
+        market.mercatBalance = (kn / (market.nftBalance));
+        uint256 basePrice = (market.price) * (10**6) + market.mercatBalance;
         uint256 fee = (basePrice * feePercentage) / (100);
-        uint256 totalPrice = (basePrice) + (fee );
-        market.price=(totalPrice)/(10**6);
+        uint256 totalPrice = (basePrice) + (fee);
+        market.price = (totalPrice) / (10**6);
 
-
-        mercatToken.burn(msg.sender, totalPrice*(10**12));
+        mercatToken.burn(msg.sender, totalPrice * (10**12));
         // require(mercatToken.balanceOf(msg.sender) >= totalPrice,"you do not have enough Mercat" );
         uint256 ownerFee = ((fee * ownerFeePercentage) / 100);
         uint256 marketFee = fee - ownerFee;
 
         market.mercatBalance += (marketFee);
-        ownerFees += (ownerFee/(10**6));
-
+        ownerFees += (ownerFee / (10**6));
 
         // Find the token ID associated with this IPFS hash
         uint256 tokenId = getTokenIdFromIpfsHash(ipfsHash);
@@ -181,12 +178,11 @@ contract ConstantProductERC1155Pricing is
         emit NFTMinted(msg.sender, tokenId, amount, market.price, fee);
     }
 
-
-    function sell(ArtistStorage artistStorage, string memory ipfsHash, uint256 amount)
-        public
-        nonReentrant
-        whenNotPaused
-    {
+    function sell(
+        ArtistStorage artistStorage,
+        string memory ipfsHash,
+        uint256 amount
+    ) public nonReentrant whenNotPaused {
         require(marketInitialized[ipfsHash], "Market not initialized");
         uint256 tokenId = getTokenIdFromIpfsHash(ipfsHash);
         require(
@@ -195,28 +191,28 @@ contract ConstantProductERC1155Pricing is
         );
 
         Market storage market = marketBalances[ipfsHash];
-        uint256 kn=getK(ipfsHash);
-        market.nftBalance-=amount;
-        uint256 factor=(kn/(market.nftBalance));
-        uint256 diff=(factor)-market.mercatBalance;
-        market.mercatBalance=factor;
-        require(market.price*10**6 > diff, "Sell price underflow");
-        uint256 sellPrice =((market.price)*(10**6)) - diff;
+        uint256 kn = getK(ipfsHash);
+        market.nftBalance -= amount;
+        uint256 factor = (kn / (market.nftBalance));
+        uint256 diff = (factor) - market.mercatBalance;
+        market.mercatBalance = factor;
+        require(market.price * 10**6 > diff, "Sell price underflow");
+        uint256 sellPrice = ((market.price) * (10**6)) - diff;
 
-        market.price=(sellPrice)/10**6;
+        market.price = (sellPrice) / 10**6;
         uint256 fee = (sellPrice * feePercentage) / 100;
         uint256 totalPrice = sellPrice - fee;
 
-        mercatToken.mint(msg.sender, (totalPrice)*(10**12));
+        mercatToken.mint(msg.sender, (totalPrice) * (10**12));
 
         _burn(msg.sender, tokenId, amount);
         market.countNFTs = market.countNFTs - amount;
 
         uint256 ownerFee = (fee * ownerFeePercentage) / 100;
-        
+
         uint256 marketFee = fee - ownerFee;
-        market.mercatBalance+=(marketFee);
-        ownerFees += (ownerFee/10**6);
+        market.mercatBalance += (marketFee);
+        ownerFees += (ownerFee / 10**6);
 
         artistStorage.updateArtistReputation(market.artist);
         emit NFTSold(msg.sender, tokenId, amount, market.price, fee);
@@ -250,16 +246,16 @@ contract ConstantProductERC1155Pricing is
         );
     }
 
-function getNFTPrice(string memory ipfsHash)
-    public
-    view
-    returns (uint256 price)
-{
-    require(marketInitialized[ipfsHash], "Market not initialized");
-    Market storage market = marketBalances[ipfsHash];
+    function getNFTPrice(string memory ipfsHash)
+        public
+        view
+        returns (uint256 price)
+    {
+        require(marketInitialized[ipfsHash], "Market not initialized");
+        Market storage market = marketBalances[ipfsHash];
 
-   price=market.price;
-}
+        price = market.price;
+    }
 
     function getMERCATPrice(string memory ipfsHash)
         public
