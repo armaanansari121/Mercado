@@ -80,7 +80,7 @@ import RankingCard from "../components/RankingCard";
     >
       <div className="absolute inset-0 bg-black opacity-75 overflow-hidden"></div>
       <Navbar />
-      <div className="flex z-10 ml-[-400px] h-10 my-8">
+      <div className="flex z-10 ml-[-400px]  h-10 mt-[-230px] my-8">
         <input
           type="text"
           placeholder="Search by username..."
@@ -115,16 +115,16 @@ import RankingCard from "../components/RankingCard";
         </select>
       </div>
       <div
-        className="ml-8 mt-52 px-16 bg-gray-700 "
-        style={{ width: "50%", position: "absolute", top: "0", left: "0" }}
+        className="px-16 bg-gray-800 rounded-t-lg"
+        style={{ width: "50%" }}
       >
-        <div className="text-slate-200 flex justify-items-start py-2 justify-between">
-          <span>Artist</span>
-          <span>Reputation</span>
-          <span>NFT Markets</span>
+        <div className="flex justify-between py-4 text-lg font-semibold">
+          <span className="text-white z-12">Artist</span>
+          <span className="text-white z-12">Reputation</span>
+          <span className="text-white z-12">NFT Markets</span>
         </div>
       </div>
-      <div className="flex flex-col ml-[-220px] mt-24 z-10" style={{ width: "80%" }}>
+      <div className="flex flex-col mt-0 z-10" style={{ width: "50%" }}>
         {filteredArtists.map((artist, index) => (
           <RankingCard
             key={index}
