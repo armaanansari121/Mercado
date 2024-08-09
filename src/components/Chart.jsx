@@ -25,21 +25,18 @@ const NFTPriceChart = ({ contract, ipfsHash }) => {
       }
       
       if (typeof ipfsHash !== 'string' || !ipfsHash) {
-
         console.error("Invalid ipfsHash:", ipfsHash);
         return;
       }
-
+      
       try {
-        console.log("ERC1155_CONTRACT:", ERC1155_CONTRACT);
-        const price = await ERC1155_CONTRACT.methods.priceHistory(ipfsHash).call();
-        console.log("Price data:", price);
-
-        // Assuming the contract returns an array of prices in BigInt or other formats
-        setPriceData(price.map(p => Number(p))); // Convert to Number if necessary
+        const priceHistory = await ERC1155_CONTRACT.methods.getPriceHistory(ipfsHash).call();
+        console.log("Price history:", priceHistory);
+        setPriceData(priceHistory.map(p => Number(p))); // Assuming price is stored with 6 decimal places
       } catch (error) {
         console.error("Error fetching price data:", error);
       }
+  
     };
 
     fetchPriceData();

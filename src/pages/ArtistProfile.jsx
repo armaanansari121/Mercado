@@ -7,7 +7,7 @@ import { Gateway_url } from "../../config";
 import AnimatedText from "../components/AnimatedDiv";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BackgroundGradientDemo } from "../components/BackgroundGradientDemo";
 
 const ArtistProfile = () => {
@@ -124,13 +124,24 @@ const ArtistProfile = () => {
         "relative flex min-h-screen flex-col items-center justify-center overflow-auto bg-slate-950 w-full"
       )}
     >
-      <div className="flex items-center">
-        <div className="px-[10rem] py-[2rem] rounded-md mb- mr-0">
-          <AnimatedText>
-            <div className="list-decimal text-slate-400 px-10 text-center">
-              Artist Profile
-            </div>
-          </AnimatedText>
+      <div className="flex w-full items-center justify-evenly ">
+        <div className="px-[10rem] py-[2rem] rounded-md mb- mr-0 flex justify-center items-center">
+          <div className="mx-40">
+            <AnimatedText>
+              <div className="list-decimal text-slate-400 px-10 text-center">
+                Artist Profile
+              </div>
+            </AnimatedText>
+          </div>
+          <div className="mx-40">
+            <Link to={"/ArtistsListing"}>
+              <AnimatedText>
+                <div className="list-decimal text-slate-400 px-10 text-center">
+                  Artist Rankings
+                </div>
+              </AnimatedText>
+            </Link>
+          </div>
         </div>
       </div>
 
