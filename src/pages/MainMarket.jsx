@@ -9,6 +9,7 @@ import { Using3dCard } from "../components/Using3dCard";
 import { useStateContext } from "../contexts";
 import { getMetadata } from "../utils/web3Helpers";
 import { Gateway_url } from "../../config";
+import { ARTISTS_CONTRACT_ADDRESS } from "../web3/constants";
 
 export function MainMarket() {
   const [backgroundImage, setBackgroundImage] = useState("");
@@ -115,9 +116,9 @@ export function MainMarket() {
       try {
         setBuyLoading(true);
         const amount = parseInt(purchaseAmount);
-        
+
         const txn = await ERC1155_CONTRACT.methods
-          .mint(selectedImageDetails.ipfsHash, amount)
+          .mint(ARTISTS_CONTRACT_ADDRESS, selectedImageDetails.ipfsHash, amount)
           .send({ from: account });
 
         setBuyLoading(false);
@@ -158,7 +159,7 @@ export function MainMarket() {
 
         // Call the sell function of the contract
         const txn = await ERC1155_CONTRACT.methods
-          .sell(selectedImageDetails.ipfsHash, amount)
+          .sell(ARTISTS_CONTRACT_ADDRESS, selectedImageDetails.ipfsHash, amount)
           .send({ from: account });
 
         console.log("Transaction Hash:", txn.transactionHash);
