@@ -4,6 +4,7 @@ import GlowingButton from "../components/GlowingButton";
 import AnimatedText from "../components/AnimatedDiv";
 import { BackgroundGradientDemo } from "../components/BackgroundGradientDemo";
 import { Link } from "react-router-dom";
+import { Gateway_url } from "../../config";
 
 export function Home() {
   return (
@@ -20,7 +21,7 @@ export function Home() {
 
         <div className="flex justify-center w-full right-0 pr-0 ml-0">
           <Link to={"/"}>
-            <img src="/public/logoHere2.png" alt="logo" />
+            <img src="https://yellow-giant-angelfish-484.mypinata.cloud/ipfs/Qmcmf5RKJS3ntC5aJtjTW7wcb1e4Zk5cUybeADPx1cnndY" alt="logo" />
           </Link>
         </div>
       </div>
@@ -61,7 +62,7 @@ export function Home() {
               <div>
                 <img
                   className="size-80 rounded-2xl"
-                  src="/public/ArtistImage.jpeg"
+                  src="https://yellow-giant-angelfish-484.mypinata.cloud/ipfs/QmZcidTXg2DjHfYmfAxFxn23obX7sf3gaQSxyeH79WM7cE"
                   alt="logo"
                 />
               </div>
@@ -88,7 +89,7 @@ export function Home() {
               <div>
                 <img
                   className="size-80 rounded-2xl"
-                  src="/public/Creators.jpg"
+                  src="https://yellow-giant-angelfish-484.mypinata.cloud/ipfs/QmTLyYhNhuAqHinaxSAD6JsMTEa7YLqweqqmJG3uyVU154"
                   alt="logo"
                 />
               </div>
@@ -122,7 +123,7 @@ export function Home() {
               <div className="mb-6 md:mb-0">
                 <Link to={"/"}>
                   <img
-                    src="/logoHere2.png "
+                    src="https://yellow-giant-angelfish-484.mypinata.cloud/ipfs/Qmcmf5RKJS3ntC5aJtjTW7wcb1e4Zk5cUybeADPx1cnndY"
                     className="h-52 w-80  "
                     alt="FlowBite Logo"
                   />

@@ -46,7 +46,7 @@ export function Marketplace() {
         >
           <ConditionalBackground type="music">
             <Card
-              imageUrl="/public/music1.webp"
+              imageUrl="https://yellow-giant-angelfish-484.mypinata.cloud/ipfs/QmeMaswLzSSivbjuEzYbA4cDqvaWn7HaUUpEc13FzRT48q"
               title="Music"
               paragraph="Unlock the beats of the future with rare digital music assets."
             />
@@ -67,7 +67,7 @@ export function Marketplace() {
         >
           <ConditionalBackground type="arts">
             <Card
-              imageUrl="/public/arts.avif"
+              imageUrl="https://yellow-giant-angelfish-484.mypinata.cloud/ipfs/QmUTekUyHzYA3yDSSvKyRJN3z2FE32h3FrawZaRaYu1Pbp"
               title="Arts"
               paragraph="Collect timeless beauty with NFTs crafted by visionary artists."
             />
@@ -88,7 +88,7 @@ export function Marketplace() {
         >
           <ConditionalBackground type="gaming">
             <Card
-              imageUrl="/public/gaming.jpg"
+              imageUrl="https://yellow-giant-angelfish-484.mypinata.cloud/ipfs/QmWRVzgBgqGvWAs54XbAx6JpAMTw6TSNA2jguvvCek1hfx"
               title="Gaming"
               paragraph="Game on with NFTs that make every move legendary."
             />

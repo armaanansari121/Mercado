@@ -28,7 +28,7 @@ export function CreatorsRanking() {
     
             return {
               rank: index + 1,
-              profileImage: "/public/profile1.jpg",
+              profileImage: "https://yellow-giant-angelfish-484.mypinata.cloud/ipfs/QmQBP2UD3cKX3J1NZRiKK7zTZfYstX16TepaQ1XJZPeUia",
               username: name,
               wallet,
               artCollection: artworks,
@@ -163,7 +163,7 @@ export function CreatorsRanking() {
           ))}
         </div>
         <div className="absolute right-0 bottom-10">
-          <img src="/logoHere2.png" alt="" />
+          <img src="https://yellow-giant-angelfish-484.mypinata.cloud/ipfs/Qmcmf5RKJS3ntC5aJtjTW7wcb1e4Zk5cUybeADPx1cnndY" alt="" />
         </div>
       </div>
     </>
