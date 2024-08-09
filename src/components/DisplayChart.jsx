@@ -5,6 +5,7 @@ import NFTPriceChart from './Chart';
 import { useStateContext } from '../contexts';
 
 export const DisplayChart = ({ ipfsHash }) => {
+ 
   const { ERC1155_CONTRACT } = useStateContext();
 
   if (!ERC1155_CONTRACT) {
@@ -14,7 +15,7 @@ export const DisplayChart = ({ ipfsHash }) => {
   return (
     <div>
       <h2>NFT Price Chart</h2>
-      <NFTPriceChart ERC1155_CONTRACT={ERC1155_CONTRACT} />
+      <NFTPriceChart ERC1155_CONTRACT={ERC1155_CONTRACT} ipfsHash={ipfsHash} />
     </div>
   );
 };

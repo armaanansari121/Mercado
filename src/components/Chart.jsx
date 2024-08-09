@@ -1,12 +1,7 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
-// ChartSetup.js
-import './ChartSetup'; // Ensure this is imported
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js';
 import { useStateContext } from '../contexts';
-
 
 ChartJS.register(
   CategoryScale,
@@ -19,32 +14,42 @@ ChartJS.register(
 );
 
 const NFTPriceChart = ({ contract, ipfsHash }) => {
-  
-  const {priceData, setPriceData} = useStateContext();
+  const { ERC1155_CONTRACT } = useStateContext();
+  const [priceData, setPriceData] = useState([]);
 
-  // useEffect(() => {
-  //   const fetchPriceData = async () => {
-  //     if (!ERC1155_CONTRACT) {
-  //       console.error("ERC1155_CONTRACT is not initialized");
-  //       return;
-  //     }
-  //     try {
-  //       const price = await ERC1155_CONTRACT.methods.getNFTPrice(ipfsHash).call();
-  //       setPriceData(prevData => [...prevData, Number(price)]);
-  //     } catch (error) {
-  //       console.error("Error fetching price data:", error);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchPriceData = async () => {
+      if (!ERC1155_CONTRACT) {
+        console.error("ERC1155_CONTRACT is not initialized");
+        return;
+      }
+      
+      if (typeof ipfsHash !== 'string' || !ipfsHash) {
 
-  //   fetchPriceData();
-  //   const interval = setInterval(fetchPriceData, 60000);
+        console.error("Invalid ipfsHash:", ipfsHash);
+        return;
+      }
 
-  //   return () => clearInterval(interval);
-  // }, [ipfsHash, ERC1155_CONTRACT]);
+      try {
+        console.log("ERC1155_CONTRACT:", ERC1155_CONTRACT);
+        const price = await ERC1155_CONTRACT.methods.priceHistory(ipfsHash).call();
+        console.log("Price data:", price);
+
+        // Assuming the contract returns an array of prices in BigInt or other formats
+        setPriceData(price.map(p => Number(p))); // Convert to Number if necessary
+      } catch (error) {
+        console.error("Error fetching price data:", error);
+      }
+    };
+
+    fetchPriceData();
+    const interval = setInterval(fetchPriceData, 60000);
+
+    return () => clearInterval(interval);
+  }, [ipfsHash, ERC1155_CONTRACT]);
 
   const data = {
     labels: priceData.map((_, index) => `Point ${index + 1}`),
-    
     datasets: [
       {
         label: 'NFT Price',
