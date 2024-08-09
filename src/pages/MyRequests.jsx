@@ -25,25 +25,21 @@ const MyRequests = () => {
               .artRequests(id)
               .call();
             let fulfilledIpfsHash = null;
-            let image = null;
+            let src = null;
 
             if (request.fulfilled) {
               fulfilledIpfsHash = await ArtistsContract.methods
                 .fulfilledRequests(id)
                 .call();
               if (fulfilledIpfsHash) {
-                const metadata = await getMetadata(
-                  Gateway_url,
-                  fulfilledIpfsHash
-                );
-                image = metadata.image;
+                src = `${Gateway_url}/ipfs/${fulfilledIpfsHash}`;
               }
             }
 
             return {
               ...request,
               fulfilledIpfsHash,
-              image,
+              src,
             };
           })
         );
@@ -87,9 +83,9 @@ const MyRequests = () => {
               </p>
               {request.fulfilled ? (
                 <img
-                  src={request.image}
+                  src={request.src}
                   alt="Fulfilled Request"
-                  className="w-full h-40 object-cover rounded-md mt-2"
+                  className="w-full h-40 object-contain rounded-md mt-2"
                 />
               ) : (
                 <button
