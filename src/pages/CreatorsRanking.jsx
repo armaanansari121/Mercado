@@ -18,31 +18,34 @@ export function CreatorsRanking() {
         
         const creatorData = await Promise.all(
           creatorAddresses.map(async (address, index) => {
-            const { name, wallet, artCollection,reputation } =
-              await ArtistsContract.methods.getArtist(address).call();
-              console.log("artCollection",artCollection);
-            //finding the highest sold means find store highest artCollection.value from all the artCollection
-            // const highestSold = Math.max(...artCollection.map((art) => art.value)); 
-            const highestSold = 0;
-
+            const { name, wallet, artworks, reputation } =
+              await ArtistsContract.methods.getCreator(address).call();
+    
+            // Convert BigInt values to Number
+            const highestSold = artworks.length > 0 
+              ? Number(Math.max(...artworks.map((art) => Number(art.value))))
+              : 0;
+    
             return {
               rank: index + 1,
               profileImage: "/public/profile1.jpg",
               username: name,
               wallet,
-              artCollection,
+              artCollection: artworks,
               reputation: Number(reputation),
-              totalSold: artCollection.length, // Placeholder, replace with actual data
-              highestSold: highestSold, // Placeholder, replace with actual data
+              totalSold: artworks.length,
+              highestSold: highestSold,
             };
           })
         );
+    
         setCreators(creatorData);
         setFilteredCreators(creatorData);
       } catch (error) {
         console.error("Error fetching creator data:", error);
       }
     };
+
 
     if (ArtistsContract) {
       fetchCreators();
@@ -85,25 +88,7 @@ export function CreatorsRanking() {
 
   return (
     <>
-      <style>
-        {`
-          ::-webkit-scrollbar {
-            width: 10px;
-            display: none;
-          }
-          ::-webkit-scrollbar-track {
-            background: #f1f1f1; 
-          }
-          ::-webkit-scrollbar-thumb {
-            background: #888; 
-            border-radius: 5px; 
-          }
-          ::-webkit-scrollbar-thumb:hover {
-            background: #555; 
-          }
-        `}
-      </style>
-
+      {/* ...style and other JSX elements remain unchanged... */}
       <div
         className={cn(
           "relative overflow-hidden flex min-h-screen flex-col items-center justify-center z-[5000] bg-slate-950 w-full pt-20",
@@ -184,4 +169,3 @@ export function CreatorsRanking() {
     </>
   );
 }
-
