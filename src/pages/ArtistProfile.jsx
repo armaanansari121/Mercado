@@ -25,6 +25,7 @@ const ArtistProfile = () => {
     price: "",
   });
   const navigate = useNavigate();
+  console.log(artist.reputation);
 
   useEffect(() => {
     const fetchArtistInfo = async () => {
@@ -147,7 +148,9 @@ const ArtistProfile = () => {
                       </p>
                       <p>
                         <strong>Reputation:</strong>{" "}
-                        {artist.reputation === 0n ? 0 : artist.reputation}
+                        {artist.reputation === 0n
+                          ? 0
+                          : artist.reputation.toString()}
                       </p>
                       <strong>Markeplaces Owned:</strong>{" "}
                       {artist.nftMarkets ? artist.nftMarkets.length : 0}

@@ -31,6 +31,7 @@ import { CreatorsRanking } from "./pages/CreatorsRanking";
 import ArtistsListing from "./pages/ArtistsListing";
 import ViewRequestOptions from "./pages/ViewRequestOptions";
 import MyRequests from "./pages/MyRequests";
+import AllRequests from "./pages/AllRequests";
 
 export const client = createThirdwebClient({
   clientId: "279bdbf9028501a51bf797ada51321ac",
@@ -118,6 +119,7 @@ function App() {
           <Route path="/createNFT" element={<CreateNFT />} />
           <Route path="/creatorProfile" element={<CreatorProfile />} />
           <Route path="/artistProfile" element={<ArtistProfile />} />
+          <Route path="/allRequests" element={<AllRequests />} />
           <Route
             path="/viewOptions/:requestId"
             element={<ViewRequestOptions />}

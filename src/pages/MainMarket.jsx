@@ -30,7 +30,8 @@ export function MainMarket() {
   const [Buyloading, setBuyLoading] = useState(false);
   const [Sellloading, setSellLoading] = useState(false);
   const location = useLocation();
-  const { ERC1155_CONTRACT, account,priceData,setPriceData } = useStateContext();
+  const { ERC1155_CONTRACT, account, priceData, setPriceData } =
+    useStateContext();
   const [metadata, setMetadata] = useState([]);
   const [filteredMetadata, setFilteredMetadata] = useState([]);
   const [purchaseAmount, setPurchaseAmount] = useState(1);
@@ -106,8 +107,12 @@ export function MainMarket() {
 
   const fetchUserBalance = async (ipfsHash) => {
     try {
-      const tokenId = await ERC1155_CONTRACT.methods.getTokenIdFromIpfsHash(ipfsHash).call();
-      const balance = await ERC1155_CONTRACT.methods.balanceOf(account, tokenId).call();
+      const tokenId = await ERC1155_CONTRACT.methods
+        .getTokenIdFromIpfsHash(ipfsHash)
+        .call();
+      const balance = await ERC1155_CONTRACT.methods
+        .balanceOf(account, tokenId)
+        .call();
       setUserBalance(parseInt(balance));
     } catch (error) {
       console.error("Error fetching user balance:", error);
@@ -129,8 +134,10 @@ export function MainMarket() {
   const handleBuy = async () => {
     if (selectedImageDetails.price && selectedImageDetails.image) {
       //ftech current price then push it to the price array
-      const currentPrice = await ERC1155_CONTRACT.methods.getNFTPrice(selectedImageDetails.ipfsHash).call();
-      setPriceData(prevData => [...prevData,  currentPrice.toNumber() ]);
+      const currentPrice = await ERC1155_CONTRACT.methods
+        .getNFTPrice(selectedImageDetails.ipfsHash)
+        .call();
+      setPriceData((prevData) => [...prevData, currentPrice.toNumber()]);
       try {
         setBuyLoading(true);
         const amount = parseInt(purchaseAmount);
@@ -172,8 +179,10 @@ export function MainMarket() {
   const handleSell = async () => {
     if (selectedImageDetails.token_id) {
       //ftech current price then push it to the price array
-      const currentPrice = await ERC1155_CONTRACT.methods.getNFTPrice(selectedImageDetails.ipfsHash).call();
-      setPriceData(prevData => [...prevData,  currentPrice.toNumber() ]);
+      const currentPrice = await ERC1155_CONTRACT.methods
+        .getNFTPrice(selectedImageDetails.ipfsHash)
+        .call();
+      setPriceData((prevData) => [...prevData, Number(currentPrice)]);
       try {
         setSellLoading(true);
         const amount = parseInt(purchaseAmount);
@@ -303,9 +312,7 @@ export function MainMarket() {
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">
                   Balance:{" "}
-                  <span className="text-neutral-500">
-                    {userBalance}
-                  </span>
+                  <span className="text-neutral-500">{userBalance}</span>
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">
                   Artist:{" "}
