@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useStateContext } from "../contexts";
 import AnimatedText from "../components/AnimatedDiv";
 import { cn } from "../utils/cn";
+import { getMetadata } from "../utils/web3Helpers";
+import { Gateway_url } from "../../config";
 
 const MyRequests = () => {
   const { ArtistsContract, account } = useStateContext();
@@ -16,11 +18,36 @@ const MyRequests = () => {
         const artistData = await ArtistsContract.methods
           .getArtist(account)
           .call();
-        console.log(artistData);
         const requestIds = artistData.myRequests;
         const requestsData = await Promise.all(
-          requestIds.map((id) => ArtistsContract.methods.artRequests(id).call())
+          requestIds.map(async (id) => {
+            const request = await ArtistsContract.methods
+              .artRequests(id)
+              .call();
+            let fulfilledIpfsHash = null;
+            let image = null;
+
+            if (request.fulfilled) {
+              fulfilledIpfsHash = await ArtistsContract.methods
+                .fulfilledRequests(id)
+                .call();
+              if (fulfilledIpfsHash) {
+                const metadata = await getMetadata(
+                  Gateway_url,
+                  fulfilledIpfsHash
+                );
+                image = metadata.image;
+              }
+            }
+
+            return {
+              ...request,
+              fulfilledIpfsHash,
+              image,
+            };
+          })
         );
+        console.log(requestsData);
         setRequests(requestsData);
       } catch (error) {
         console.error("Error fetching requests:", error);
@@ -47,23 +74,31 @@ const MyRequests = () => {
               className="bg-slate-900 rounded-md p-4 border border-slate-700"
             >
               <p className="text-slate-200">
-                <strong>ID:</strong> {request.id}
+                <strong>ID:</strong> {Number(request.id)}
               </p>
               <p className="text-slate-200">
                 <strong>Description:</strong> {request.description}
               </p>
               <p className="text-slate-200">
-                <strong>Price:</strong> {request.price} MER
+                <strong>Price:</strong> {Number(request.price)} MER
               </p>
               <p className="text-slate-200">
                 <strong>Fulfilled:</strong> {request.fulfilled ? "Yes" : "No"}
               </p>
-              <button
-                className="bg-gradient-to-br relative group/btn from-cyan-900 to-blue-900 block w-full text-slate-200 rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#1e40af40_inset,0px_-1px_0px_0px_#1e40af40_inset] mt-4"
-                onClick={() => navigate(`/viewOptions/${request.id}`)}
-              >
-                View Options
-              </button>
+              {request.fulfilled ? (
+                <img
+                  src={request.image}
+                  alt="Fulfilled Request"
+                  className="w-full h-40 object-cover rounded-md mt-2"
+                />
+              ) : (
+                <button
+                  className="bg-gradient-to-br relative group/btn from-cyan-900 to-blue-900 block w-full text-slate-200 rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#1e40af40_inset,0px_-1px_0px_0px_#1e40af40_inset] mt-4"
+                  onClick={() => navigate(`/viewOptions/${request.id}`)}
+                >
+                  View Options
+                </button>
+              )}
             </div>
           ))}
         </div>
