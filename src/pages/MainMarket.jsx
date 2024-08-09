@@ -1,8 +1,9 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import { cn } from "../utils/cn";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { BackgroundGradientDemo } from "../components/BackgroundGradientDemo";
 import { Using3dCard } from "../components/Using3dCard";
@@ -10,8 +11,10 @@ import { useStateContext } from "../contexts";
 import { getMetadata } from "../utils/web3Helpers";
 import { Gateway_url } from "../../config";
 import { ARTISTS_CONTRACT_ADDRESS } from "../web3/constants";
+import {DisplayChart} from "../components/DisplayChart";
 
 export function MainMarket() {
+  const [isGraphModalOpen, setIsGraphModalOpen] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState("");
   const [shadowColor, setShadowColor] = useState("#00ffff");
   const [selectedImage, setSelectedImage] = useState(null);
@@ -74,9 +77,10 @@ export function MainMarket() {
         console.error("Error fetching metadata:", error);
       }
     };
-    fetchMetadata();
+    if (ERC1155_CONTRACT) {
+      fetchMetadata();
+    }
   }, [ERC1155_CONTRACT, account]);
-
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const theme = params.get("theme");
@@ -134,10 +138,8 @@ export function MainMarket() {
   const handleBuy = async () => {
     if (selectedImageDetails.price && selectedImageDetails.image) {
       //ftech current price then push it to the price array
-      const currentPrice = await ERC1155_CONTRACT.methods
-        .getNFTPrice(selectedImageDetails.ipfsHash)
-        .call();
-      setPriceData((prevData) => [...prevData, currentPrice.toNumber()]);
+      const currentPrice = await ERC1155_CONTRACT.methods.getNFTPrice(selectedImageDetails.ipfsHash).call();
+      setPriceData(prevData => [...prevData,  currentPrice.toNumber() ]);
       try {
         setBuyLoading(true);
         const amount = parseInt(purchaseAmount);
@@ -179,10 +181,8 @@ export function MainMarket() {
   const handleSell = async () => {
     if (selectedImageDetails.token_id) {
       //ftech current price then push it to the price array
-      const currentPrice = await ERC1155_CONTRACT.methods
-        .getNFTPrice(selectedImageDetails.ipfsHash)
-        .call();
-      setPriceData((prevData) => [...prevData, Number(currentPrice)]);
+      const currentPrice = await ERC1155_CONTRACT.methods.getNFTPrice(selectedImageDetails.ipfsHash).call();
+      setPriceData(prevData => [...prevData,  currentPrice.toNumber() ]);
       try {
         setSellLoading(true);
         const amount = parseInt(purchaseAmount);
@@ -218,6 +218,14 @@ export function MainMarket() {
     } else {
       alert("Invalid NFT details. Please select a valid NFT.");
     }
+  };
+
+  const handleViewGraph = () => {
+    setIsGraphModalOpen(true);
+  };
+
+  const closeGraphModal = () => {
+    setIsGraphModalOpen(false);
   };
 
   return (
@@ -393,10 +401,53 @@ export function MainMarket() {
                     </motion.button>
                   )}
                 </div>
+                
               </div>
+              <div className="flex justify-center items-center mt-4">
+                  <motion.button
+                  whileHover={{
+                  boxShadow: "0 0 10px 3px rgba(255, 255, 255, 0.7)",
+                  transform: "translateY(-2px)",
+                            }}
+                  className="block my-4 p-3 px-6 text-white rounded-2xl hover:bg-[#4a90e2] transition-all duration-200"
+                  style={{ backgroundColor: "#3498db" }}
+                  onClick={handleViewGraph}
+                 >
+                  View Graph
+                </motion.button>
+            </div>
             </>
           )}
         </div>
+        <AnimatePresence>
+        {isGraphModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={closeGraphModal}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-slate-800 bg-opacity-90 p-8 rounded-lg w-3/4 h-3/4 overflow-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-2xl font-bold text-white mb-4">NFT Price Graph</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">NFT Price Graph</h2>
+              <DisplayChart  />
+              <button
+                 className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                 onClick={closeGraphModal}
+              >
+          Close
+        </button>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
       </div>
     </div>
   );

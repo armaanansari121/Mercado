@@ -41,6 +41,7 @@ contract ConstantProductERC1155Pricing is
     mapping(string => Market) public marketBalances;
     mapping(string => bool) public marketInitialized;
     // mapping(address=> mapping (uint => Market)) public marketOwner;
+    mapping(string => uint256[]) public priceHistory;
 
     // Mapping from token ID to IPFS hash
     mapping(uint256 => string) public tokenIdToIpfsHash;
@@ -116,6 +117,9 @@ contract ConstantProductERC1155Pricing is
             1
         );
         marketInitialized[ipfsHash] = true;
+
+        priceHistory[ipfsHash].push(price);
+
         // marketOwner[msg.sender].push(marketBalances[ipfsHash]);
         mercatToken.burn(artist, 150 * 10**18);
         // Associate the new token ID with the IPFS hash
@@ -161,12 +165,13 @@ contract ConstantProductERC1155Pricing is
         uint256 totalPrice = (basePrice) + (fee);
         market.price = (totalPrice) / (10**6);
 
-        mercatToken.burn(msg.sender, totalPrice * (10**12));
+        mercatToken.burn(msg.sender,amount * totalPrice * (10**12));
         // require(mercatToken.balanceOf(msg.sender) >= totalPrice,"you do not have enough Mercat" );
         uint256 ownerFee = ((fee * ownerFeePercentage) / 100);
         uint256 marketFee = fee - ownerFee;
-
-        market.mercatBalance += (marketFee);
+        uint256 artistFee = marketFee/2;
+        mercatToken.mint(market.artist,artistFee*10**12); //yha 10*18 to nhi hoga i guess maybe 12
+        market.mercatBalance += (marketFee/2);
         ownerFees += (ownerFee / (10**6));
 
         // Find the token ID associated with this IPFS hash
@@ -176,6 +181,7 @@ contract ConstantProductERC1155Pricing is
 
         artistStorage.updateArtistReputation(market.artist);
         emit NFTMinted(msg.sender, tokenId, amount, market.price, fee);
+        priceHistory[ipfsHash].push(market.price);
     }
 
     function sell(
@@ -203,7 +209,7 @@ contract ConstantProductERC1155Pricing is
         uint256 fee = (sellPrice * feePercentage) / 100;
         uint256 totalPrice = sellPrice - fee;
 
-        mercatToken.mint(msg.sender, (totalPrice) * (10**12));
+        mercatToken.mint(msg.sender,amount * ((totalPrice)*(10**12)));
 
         _burn(msg.sender, tokenId, amount);
         market.countNFTs = market.countNFTs - amount;
@@ -216,6 +222,7 @@ contract ConstantProductERC1155Pricing is
 
         artistStorage.updateArtistReputation(market.artist);
         emit NFTSold(msg.sender, tokenId, amount, market.price, fee);
+        priceHistory[ipfsHash].push(market.price);
     }
 
     function getMarketDetails(string memory ipfsHash)
