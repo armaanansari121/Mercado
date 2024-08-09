@@ -137,7 +137,7 @@ export function Home() {
                   <ul className="text-gray-500 dark:text-gray-400 font-medium">
                     <li className="mb-4">
                       <a
-                        href="https://github.com/Prakhar-30/Mercado"
+                        href="https://github.com/armaanansari121/Mercado"
                         className="hover:underline "
                       >
                         Github
