@@ -90,6 +90,7 @@ Mercado stands at the forefront of innovation in the NFT space, offering a sophi
 
 - OpenZeppelin for their robust smart contract frameworks
 - The Ethereum community for their continued innovation and support
+- Acertinity Ui for providing us with their innovative ui templates
 
 ---
 
