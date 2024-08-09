@@ -92,15 +92,15 @@ export function MainMarket() {
 
     switch (theme) {
       case "Music":
-        setBackgroundImage("/public/imageMusic.jpg");
+        setBackgroundImage("https://yellow-giant-angelfish-484.mypinata.cloud/ipfs/QmaPgruXCRErih8pki8pasMFiXVHx5dbcxHR36dyqaEfGZ");
         setShadowColor("#39ff14");
         break;
       case "Gaming":
-        setBackgroundImage("/public/imageGaming.jpg");
+        setBackgroundImage("https://yellow-giant-angelfish-484.mypinata.cloud/ipfs/QmYfYkjJhFZdPHPTRtGHwEspj4WqpuHqH96XYsUbAqWSVh");
         setShadowColor("#00ffff");
         break;
       case "Arts":
-        setBackgroundImage("/public/imageArts.jpg");
+        setBackgroundImage("https://yellow-giant-angelfish-484.mypinata.cloud/ipfs/QmQ6Xt68xGXp19ndcwRYxNgu8mmNRxLEdUJ7KUEooDsAJw");
         setShadowColor("#F535AA");
         break;
       default:
@@ -241,7 +241,7 @@ export function MainMarket() {
       <div className="absolute inset-0 bg-black opacity-75 overflow-hidden"></div>
       <Navbar />
       <div className="p-0 size-72 absolute left-0 top-0 ml-0">
-        <img src="public/logoHere2.png" alt="" />
+        <img src="https://yellow-giant-angelfish-484.mypinata.cloud/ipfs/Qmcmf5RKJS3ntC5aJtjTW7wcb1e4Zk5cUybeADPx1cnndY" alt="" />
       </div>
       <div className="flex justify-center items-center z-10">
         <div

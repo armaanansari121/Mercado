@@ -20,7 +20,7 @@ export function LampDemo() {
         scene="https://prod.spline.design/5NCd3ur4F04VjwXu/scene.splinecode" 
       />
        
-      <img src="logoHere2.png" alt="Logo" className="absolute w-96 h-58 bottom-0 right-0 mb-4 mr-4" />
+      <img src="https://yellow-giant-angelfish-484.mypinata.cloud/ipfs/Qmcmf5RKJS3ntC5aJtjTW7wcb1e4Zk5cUybeADPx1cnndY" alt="Logo" className="absolute w-96 h-58 bottom-0 right-0 mb-4 mr-4" />
     </div>
   );
 }
