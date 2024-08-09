@@ -115,7 +115,7 @@ export function MainMarket() {
       try {
         setBuyLoading(true);
         const amount = parseInt(purchaseAmount);
-
+        
         const txn = await ERC1155_CONTRACT.methods
           .mint(selectedImageDetails.ipfsHash, amount)
           .send({ from: account });

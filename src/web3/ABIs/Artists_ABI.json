@@ -419,9 +419,27 @@
 				"type": "string[]"
 			},
 			{
+				"internalType": "uint256[]",
+				"name": "myRequests",
+				"type": "uint256[]"
+			},
+			{
 				"internalType": "uint256",
 				"name": "reputation",
 				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getArtistAddresses",
+		"outputs": [
+			{
+				"internalType": "address[]",
+				"name": "",
+				"type": "address[]"
 			}
 		],
 		"stateMutability": "view",
@@ -468,6 +486,19 @@
 				"internalType": "uint256",
 				"name": "reputation",
 				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getCreatorAddresses",
+		"outputs": [
+			{
+				"internalType": "address[]",
+				"name": "",
+				"type": "address[]"
 			}
 		],
 		"stateMutability": "view",
