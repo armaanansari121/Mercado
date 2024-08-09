@@ -709,6 +709,25 @@
 				"type": "string"
 			}
 		],
+		"name": "getPriceHistory",
+		"outputs": [
+			{
+				"internalType": "uint256[]",
+				"name": "",
+				"type": "uint256[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "ipfsHash",
+				"type": "string"
+			}
+		],
 		"name": "getTokenIdFromIpfsHash",
 		"outputs": [
 			{
