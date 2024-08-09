@@ -6,6 +6,7 @@ import { Gateway_url } from "../../config";
 import AnimatedText from "../components/AnimatedDiv";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
+import { useNavigate } from "react-router-dom";
 
 const ArtistProfile = () => {
   const { ArtistsContract, ERC1155_CONTRACT, account } = useStateContext();
@@ -23,6 +24,7 @@ const ArtistProfile = () => {
     description: "",
     price: "",
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchArtistInfo = async () => {
@@ -189,62 +191,77 @@ const ArtistProfile = () => {
               )}
             </AnimatedText>
           </div>
-          <AnimatedText>
-            <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-slate-900 border border-slate-800">
-              <h2 className="font-bold text-xl text-slate-200">
-                Create Art Request
-              </h2>
-              <p className="text-slate-400 text-sm max-w-sm mt-2">
-                Fill in the form to create an art request.
-              </p>
-
-              <form className="my-8" onSubmit={handleArtRequestCreate}>
-                <LabelInputContainer className="mb-4">
-                  <Label htmlFor="description" className="text-slate-200">
-                    Description
-                  </Label>
-                  <Input
-                    id="description"
-                    value={newArtRequest.description}
-                    onChange={(e) =>
-                      setNewArtRequest({
-                        ...newArtRequest,
-                        description: e.target.value,
-                      })
-                    }
-                    placeholder="Request Description"
-                    type="text"
-                    className="bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500"
-                  />
-                </LabelInputContainer>
-                <LabelInputContainer className="mb-4">
-                  <Label htmlFor="price" className="text-slate-200">
-                    Price (MER)
-                  </Label>
-                  <Input
-                    id="price"
-                    value={newArtRequest.price}
-                    onChange={(e) =>
-                      setNewArtRequest({
-                        ...newArtRequest,
-                        price: e.target.value,
-                      })
-                    }
-                    placeholder="Request Price"
-                    type="number"
-                    className="bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500"
-                  />
-                </LabelInputContainer>
+          {!isRegistered ? (
+            <div>
+              <h1 className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-slate-900 border border-slate-800">
+                Please Register
+              </h1>
+            </div>
+          ) : (
+            <AnimatedText>
+              <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-slate-900 border border-slate-800">
                 <button
-                  className="bg-gradient-to-br relative group/btn from-cyan-900 to-blue-900 block w-full text-slate-200 rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#1e40af40_inset,0px_-1px_0px_0px_#1e40af40_inset]"
-                  type="submit"
+                  className="bg-gradient-to-br mb-4 relative group/btn from-cyan-900 to-blue-900 block w-full text-slate-200 rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#1e40af40_inset,0px_-1px_0px_0px_#1e40af40_inset] "
+                  onClick={() => navigate("/myRequests")}
                 >
-                  Create Request
+                  View My Requests
                   <BottomGradient />
                 </button>
-              </form>
-            </div>
-          </AnimatedText>
+                <h2 className="font-bold text-xl text-slate-200">
+                  Create Art Request
+                </h2>
+                <p className="text-slate-400 text-sm max-w-sm mt-2">
+                  Fill in the form to create an art request.
+                </p>
+
+                <form className="my-8" onSubmit={handleArtRequestCreate}>
+                  <LabelInputContainer className="mb-4">
+                    <Label htmlFor="description" className="text-slate-200">
+                      Description
+                    </Label>
+                    <Input
+                      id="description"
+                      value={newArtRequest.description}
+                      onChange={(e) =>
+                        setNewArtRequest({
+                          ...newArtRequest,
+                          description: e.target.value,
+                        })
+                      }
+                      placeholder="Request Description"
+                      type="text"
+                      className="bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500"
+                    />
+                  </LabelInputContainer>
+                  <LabelInputContainer className="mb-4">
+                    <Label htmlFor="price" className="text-slate-200">
+                      Price (MER)
+                    </Label>
+                    <Input
+                      id="price"
+                      value={newArtRequest.price}
+                      onChange={(e) =>
+                        setNewArtRequest({
+                          ...newArtRequest,
+                          price: e.target.value,
+                        })
+                      }
+                      placeholder="Request Price"
+                      type="number"
+                      className="bg-slate-800 border-slate-700 text-slate-200 placeholder-slate-500"
+                    />
+                  </LabelInputContainer>
+                  <button
+                    className="bg-gradient-to-br relative group/btn from-cyan-900 to-blue-900 block w-full text-slate-200 rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#1e40af40_inset,0px_-1px_0px_0px_#1e40af40_inset]"
+                    type="submit"
+                  >
+                    Create Request
+                    <BottomGradient />
+                  </button>
+                </form>
+              </div>
+            </AnimatedText>
+          )}
         </div>
         <AnimatedText>
           <div className="flex flex-col items-center mt-4 w-[50rem] h-[35rem] overflow-y-scroll justify-evenly space-y-6 pt-8">
