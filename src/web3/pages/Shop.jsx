@@ -11,6 +11,8 @@ const Shop = () => {
   const [balance, setBalance] = useState(null);
 
   const { MercatContract, account, ERC1155_CONTRACT } = useStateContext();
+  console.log("ERC1155_CONTRACT", ERC1155_CONTRACT);
+  console.log("MercatContract", MercatContract);
 
   const handlePurchase = async () => {
     if (!ethers || parseFloat(ethers) <= 0 || !account) {
