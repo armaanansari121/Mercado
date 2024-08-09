@@ -7,7 +7,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 const NFTPriceChart = ({ contract, ipfsHash }) => {
   
-  const {priceData, setPriceData} = useStateContext();
+  const [priceData, setPriceData] = useState([]);
 
   useEffect(() => {
     const fetchPriceData = async () => {
