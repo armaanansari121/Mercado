@@ -4,6 +4,7 @@ import { cn } from "../utils/cn";
 
 export function NavbarItem({ navItem }) {
   return (
+    
     <NavLink
       to={navItem.link}
       className={cn(

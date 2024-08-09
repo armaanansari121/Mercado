@@ -18,9 +18,9 @@ ChartJS.register(
   Legend
 );
 
-const NFTPriceChart = ({ ipfsHash, ERC1155_CONTRACT }) => {
+const NFTPriceChart = ({ contract, ipfsHash }) => {
+  
   const {priceData, setPriceData} = useStateContext();
-  console.log("priceData",priceData);
 
   // useEffect(() => {
   //   const fetchPriceData = async () => {
