@@ -13,6 +13,7 @@ contract ArtistStorage {
         address wallet;
         string[] artCollection;
         string[] nftMarkets;
+        uint[] myRequests;
         uint256 reputation;
     }
 
@@ -223,6 +224,8 @@ contract ArtistStorage {
             string memory name,
             address wallet,
             string[] memory artCollection,
+            string[] memory nftMarkets,
+            uint[] memory myRequests,
             uint256 reputation
         )
     {
@@ -231,6 +234,8 @@ contract ArtistStorage {
             artist.name,
             artist.wallet,
             artist.artCollection,
+            artist.nftMarkets,
+            artist.myRequests,
             artist.reputation
         );
     }
@@ -260,6 +265,14 @@ contract ArtistStorage {
         returns (ArtOption[] memory)
     {
         return artOptions[_requestId];
+    }
+
+    function getArtistAddresses() external view returns (address[] memory) {
+        return artistAddress;
+    }
+
+    function getCreatorAddresses() external view returns (address[] memory) {
+        return creatorsAddress;
     }
 
     function sqrt(uint256 x) internal pure returns (uint256) {
