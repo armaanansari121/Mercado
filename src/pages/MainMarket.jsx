@@ -9,6 +9,7 @@ import { Using3dCard } from "../components/Using3dCard";
 import { useStateContext } from "../contexts";
 import { getMetadata } from "../utils/web3Helpers";
 import { Gateway_url } from "../../config";
+import { ARTISTS_CONTRACT_ADDRESS } from "../web3/constants";
 
 export function MainMarket() {
   const [backgroundImage, setBackgroundImage] = useState("");
@@ -29,10 +30,11 @@ export function MainMarket() {
   const [Buyloading, setBuyLoading] = useState(false);
   const [Sellloading, setSellLoading] = useState(false);
   const location = useLocation();
-  const { ERC1155_CONTRACT, account } = useStateContext();
+  const { ERC1155_CONTRACT, account,priceData,setPriceData } = useStateContext();
   const [metadata, setMetadata] = useState([]);
   const [filteredMetadata, setFilteredMetadata] = useState([]);
   const [purchaseAmount, setPurchaseAmount] = useState(1);
+  const [userBalance, setUserBalance] = useState(0);
 
   useEffect(() => {
     const fetchMetadata = async () => {
@@ -48,7 +50,6 @@ export function MainMarket() {
             .getMarketDetails(ipfsHash)
             .call();
           const Metadata = await getMetadata(Gateway_url, ipfsHash);
-          // fetching Updated price of NFT
           const updatedPrice = await ERC1155_CONTRACT.methods
             .getNFTPrice(ipfsHash)
             .call();
@@ -61,10 +62,11 @@ export function MainMarket() {
             price: Number(updatedPrice),
             perks: NFTDetails[5],
             creator: NFTDetails[6],
-            countNFTs: NFTDetails[7],
+            countNFTs: Number(NFTDetails[7]),
             token_id: i,
           });
         }
+        console.log("metadataArray", metadataArray);
         setMetadata(metadataArray);
         setFilteredMetadata(metadataArray);
       } catch (error) {
@@ -102,28 +104,45 @@ export function MainMarket() {
     }
   }, [location.search, metadata]);
 
+  const fetchUserBalance = async (ipfsHash) => {
+    try {
+      const tokenId = await ERC1155_CONTRACT.methods.getTokenIdFromIpfsHash(ipfsHash).call();
+      const balance = await ERC1155_CONTRACT.methods.balanceOf(account, tokenId).call();
+      setUserBalance(parseInt(balance));
+    } catch (error) {
+      console.error("Error fetching user balance:", error);
+      setUserBalance(0);
+    }
+  };
+
   const handleImageClick = (image) => {
     setSelectedImage(image);
     const selectedMetadata = filteredMetadata.find(
       (item) => item.image === image
     );
     setSelectedImageDetails(selectedMetadata || {});
+    if (selectedMetadata) {
+      fetchUserBalance(selectedMetadata.ipfsHash);
+    }
   };
 
   const handleBuy = async () => {
     if (selectedImageDetails.price && selectedImageDetails.image) {
+      //ftech current price then push it to the price array
+      const currentPrice = await ERC1155_CONTRACT.methods.getNFTPrice(selectedImageDetails.ipfsHash).call();
+      setPriceData(prevData => [...prevData,  currentPrice.toNumber() ]);
       try {
         setBuyLoading(true);
         const amount = parseInt(purchaseAmount);
-        
+
         const txn = await ERC1155_CONTRACT.methods
-          .mint(selectedImageDetails.ipfsHash, amount)
+          .mint(ARTISTS_CONTRACT_ADDRESS, selectedImageDetails.ipfsHash, amount)
           .send({ from: account });
 
         setBuyLoading(false);
         alert("Purchase successful!");
+        await fetchUserBalance(selectedImageDetails.ipfsHash);
 
-        // Refresh metadata after purchase
         const updatedMetadata = [...metadata];
         const index = updatedMetadata.findIndex(
           (item) => item.token_id === selectedImageDetails.token_id
@@ -152,20 +171,20 @@ export function MainMarket() {
 
   const handleSell = async () => {
     if (selectedImageDetails.token_id) {
+      //ftech current price then push it to the price array
+      const currentPrice = await ERC1155_CONTRACT.methods.getNFTPrice(selectedImageDetails.ipfsHash).call();
+      setPriceData(prevData => [...prevData,  currentPrice.toNumber() ]);
       try {
         setSellLoading(true);
         const amount = parseInt(purchaseAmount);
 
-        // Call the sell function of the contract
         const txn = await ERC1155_CONTRACT.methods
-          .sell(selectedImageDetails.ipfsHash, amount)
+          .sell(ARTISTS_CONTRACT_ADDRESS, selectedImageDetails.ipfsHash, amount)
           .send({ from: account });
-
-        console.log("Transaction Hash:", txn.transactionHash);
         setSellLoading(false);
         alert("Sale successful!");
+        await fetchUserBalance(selectedImageDetails.ipfsHash);
 
-        // Refresh metadata after sale
         const updatedMetadata = [...metadata];
         const index = updatedMetadata.findIndex(
           (item) => item.token_id === selectedImageDetails.token_id
@@ -192,10 +211,6 @@ export function MainMarket() {
     }
   };
 
-  console.log("filteredMetadata", filteredMetadata);
-  console.log("selectedImageDetails", selectedImageDetails);
-  console.log("metadata", metadata);
-  console.log("selectedImage", selectedImage);
   return (
     <div
       className={cn(
@@ -284,6 +299,12 @@ export function MainMarket() {
                   MintedNFTs:{" "}
                   <span className="text-neutral-500">
                     {selectedImageDetails?.countNFTs}
+                  </span>
+                </div>
+                <div className="text-neutral-200 text-2xl mt-4 mb-4">
+                  Balance:{" "}
+                  <span className="text-neutral-500">
+                    {userBalance}
                   </span>
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">

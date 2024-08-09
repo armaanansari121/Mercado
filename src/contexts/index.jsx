@@ -7,6 +7,7 @@ export const StateContextProvider = ({ children }) => {
   const [MercatContract, setMercatContract] = useState(null);
   const [ArtistsContract, setArtistsContract] = useState(null);
   const [account, setAccount] = useState(null);
+  const [priceData, setPriceData] = useState([]);
 
   return (
     <StateContext.Provider
@@ -19,6 +20,8 @@ export const StateContextProvider = ({ children }) => {
         setArtistsContract,
         account,
         setAccount,
+        priceData,
+        setPriceData,
       }}
     >
       {children}
