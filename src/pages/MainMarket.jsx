@@ -116,7 +116,6 @@ export function MainMarket() {
       try {
         setBuyLoading(true);
         const amount = parseInt(purchaseAmount);
-        // console.log(ERC1155_CONTRACT);
 
         const txn = await ERC1155_CONTRACT.methods
           .mint(ARTISTS_CONTRACT_ADDRESS, selectedImageDetails.ipfsHash, amount)
