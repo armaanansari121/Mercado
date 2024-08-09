@@ -17,8 +17,6 @@ contract ConstantProductERC1155Pricing is
     Mercat public mercatToken;
 
     uint256 private constant SCALE = 1e6;
-    uint256 private constant INITIAL_MERCAT_BALANCE = 1000000 * 1e18; // 1 million MERCAT
-    uint256 private constant INITIAL_NFT_BALANCE = 100 * SCALE;
 
     struct Market {
         uint256 mercatBalance;
@@ -53,7 +51,6 @@ contract ConstantProductERC1155Pricing is
     uint256 public feePercentage = 15;
     uint256 public ownerFeePercentage = 7;
     uint256 public marketFeePercentage = 8;
-    uint256 public maxPriceImpact = 10; // 10% max price impact
 
     uint256 public constant ETH_TO_MERCAT_RATE = 100000; // 1 ETH = 100000 MERCAT
 
@@ -107,8 +104,8 @@ contract ConstantProductERC1155Pricing is
     ) public {
         require(!marketInitialized[ipfsHash], "Market already initialized");
         marketBalances[ipfsHash] = Market(
-            INITIAL_MERCAT_BALANCE,
-            INITIAL_NFT_BALANCE,
+            1,
+            1,
             name,
             description,
             theme,
@@ -116,7 +113,7 @@ contract ConstantProductERC1155Pricing is
             price,
             perks,
             artist,
-            0
+            1
         );
         marketInitialized[ipfsHash] = true;
         // marketOwner[msg.sender].push(marketBalances[ipfsHash]);
@@ -145,11 +142,6 @@ contract ConstantProductERC1155Pricing is
         );
     }
 
-    function setMaxPriceImpact(uint256 _maxPriceImpact) external onlyOwner {
-        maxPriceImpact = _maxPriceImpact;
-        emit MaxPriceImpactUpdated(maxPriceImpact);
-    }
-
     function mint(ArtistStorage artistStorage ,string memory ipfsHash, uint256 amount)
         public
         nonReentrant
@@ -158,21 +150,27 @@ contract ConstantProductERC1155Pricing is
         require(marketInitialized[ipfsHash], "Market not initialized");
         Market storage market = marketBalances[ipfsHash];
 
-        uint256 basePrice = market.price;
-        uint256 fee = (basePrice * feePercentage) / 100;
-        uint256 totalPrice = (basePrice + fee) * 10**18;
+        uint kn=getK(ipfsHash);
+        if(kn==1)
+        {
+            kn=kn*(10**6);
+        }
+        market.nftBalance+=amount;
+        market.mercatBalance=(kn/(market.nftBalance));    
+        uint256 basePrice = (market.price)*(10**6) + market.mercatBalance;
+        uint256 fee = (basePrice * feePercentage) / (100);
+        uint256 totalPrice = (basePrice) + (fee );
+        market.price=(totalPrice)/(10**6);
 
-        uint256 priceImpact = calculatePriceImpact(ipfsHash, true, basePrice);
-        require(priceImpact <= maxPriceImpact, "Price impact too high");
 
-        mercatToken.burn(msg.sender, totalPrice);
+        mercatToken.burn(msg.sender, totalPrice*(10**12));
         // require(mercatToken.balanceOf(msg.sender) >= totalPrice,"you do not have enough Mercat" );
-        uint256 ownerFee = (fee * ownerFeePercentage) / feePercentage;
+        uint256 ownerFee = ((fee * ownerFeePercentage) / 100);
         uint256 marketFee = fee - ownerFee;
 
-        market.mercatBalance += basePrice + marketFee;
-        ownerFees += ownerFee;
-        market.nftBalance -= SCALE;
+        market.mercatBalance += (marketFee);
+        ownerFees += (ownerFee/(10**6));
+
 
         // Find the token ID associated with this IPFS hash
         uint256 tokenId = getTokenIdFromIpfsHash(ipfsHash);
@@ -180,8 +178,9 @@ contract ConstantProductERC1155Pricing is
         market.countNFTs = market.countNFTs + amount;
 
         artistStorage.updateArtistReputation(market.artist);
-        emit NFTMinted(msg.sender, tokenId, amount, basePrice, fee);
+        emit NFTMinted(msg.sender, tokenId, amount, market.price, fee);
     }
+
 
     function sell(ArtistStorage artistStorage, string memory ipfsHash, uint256 amount)
         public
@@ -196,27 +195,31 @@ contract ConstantProductERC1155Pricing is
         );
 
         Market storage market = marketBalances[ipfsHash];
+        uint256 kn=getK(ipfsHash);
+        market.nftBalance-=amount;
+        uint256 factor=(kn/(market.nftBalance));
+        uint256 diff=(factor)-market.mercatBalance;
+        market.mercatBalance=factor;
+        require(market.price*10**6 > diff, "Sell price underflow");
+        uint256 sellPrice =((market.price)*(10**6)) - diff;
 
-        uint256 basePrice = getNFTPrice(ipfsHash);
-        uint256 fee = (basePrice * feePercentage) / 100;
-        uint256 totalPrice = basePrice - fee;
+        market.price=(sellPrice)/10**6;
+        uint256 fee = (sellPrice * feePercentage) / 100;
+        uint256 totalPrice = sellPrice - fee;
 
-        uint256 priceImpact = calculatePriceImpact(ipfsHash, false, basePrice);
-        require(priceImpact <= maxPriceImpact, "Price impact too high");
-        mercatToken.mint(msg.sender, totalPrice);
+        mercatToken.mint(msg.sender, (totalPrice)*(10**12));
 
         _burn(msg.sender, tokenId, amount);
         market.countNFTs = market.countNFTs - amount;
 
-        uint256 ownerFee = (fee * ownerFeePercentage) / feePercentage;
+        uint256 ownerFee = (fee * ownerFeePercentage) / 100;
+        
         uint256 marketFee = fee - ownerFee;
-
-        market.mercatBalance -= (totalPrice + marketFee);
-        ownerFees += ownerFee;
-        market.nftBalance += SCALE;
+        market.mercatBalance+=(marketFee);
+        ownerFees += (ownerFee/10**6);
 
         artistStorage.updateArtistReputation(market.artist);
-        emit NFTSold(msg.sender, tokenId, amount, basePrice, fee);
+        emit NFTSold(msg.sender, tokenId, amount, market.price, fee);
     }
 
     function getMarketDetails(string memory ipfsHash)
@@ -247,15 +250,16 @@ contract ConstantProductERC1155Pricing is
         );
     }
 
-    function getNFTPrice(string memory ipfsHash)
-        public
-        view
-        returns (uint256 price)
-    {
-        require(marketInitialized[ipfsHash], "Market not initialized");
-        Market storage balance = marketBalances[ipfsHash];
-        price = (balance.mercatBalance * SCALE) / balance.nftBalance;
-    }
+function getNFTPrice(string memory ipfsHash)
+    public
+    view
+    returns (uint256 price)
+{
+    require(marketInitialized[ipfsHash], "Market not initialized");
+    Market storage market = marketBalances[ipfsHash];
+
+   price=market.price;
+}
 
     function getMERCATPrice(string memory ipfsHash)
         public
@@ -264,43 +268,13 @@ contract ConstantProductERC1155Pricing is
     {
         require(marketInitialized[ipfsHash], "Market not initialized");
         Market storage balance = marketBalances[ipfsHash];
-        price = (balance.mercatBalance * SCALE) / (balance.nftBalance + SCALE);
+        price = (balance.mercatBalance);
     }
 
     function getK(string memory ipfsHash) public view returns (uint256 k) {
         require(marketInitialized[ipfsHash], "Market not initialized");
         Market storage balance = marketBalances[ipfsHash];
-        k = (balance.mercatBalance * balance.nftBalance) / SCALE;
-    }
-
-    function calculatePriceImpact(
-        string memory ipfsHash,
-        bool isMinting,
-        uint256 amount
-    ) public view returns (uint256) {
-        require(marketInitialized[ipfsHash], "Market not initialized");
-        Market storage balance = marketBalances[ipfsHash];
-        uint256 startPrice = isMinting
-            ? getNFTPrice(ipfsHash)
-            : getMERCATPrice(ipfsHash);
-        uint256 endPrice;
-
-        if (isMinting) {
-            uint256 newMercatBalance = balance.mercatBalance + amount;
-            uint256 newNftBalance = balance.nftBalance - SCALE;
-            endPrice = (newMercatBalance * SCALE) / newNftBalance;
-        } else {
-            uint256 newMercatBalance = balance.mercatBalance - amount;
-            uint256 newNftBalance = balance.nftBalance + SCALE;
-            endPrice = (newMercatBalance * SCALE) / (newNftBalance + SCALE);
-        }
-
-        return
-            ((
-                endPrice > startPrice
-                    ? endPrice - startPrice
-                    : startPrice - endPrice
-            ) * 100) / startPrice;
+        k = (balance.mercatBalance * balance.nftBalance);
     }
 
     function getTokenIdFromIpfsHash(string memory ipfsHash)
