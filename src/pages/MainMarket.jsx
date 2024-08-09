@@ -257,6 +257,7 @@ export function MainMarket() {
                       src={item?.image}
                       alt={item?.name}
                       style={{ width: "300px", height: "250px" }}
+                      className="rounded-xl"
                       onClick={() => handleImageClick(item?.image)}
                     />
                   </div>
