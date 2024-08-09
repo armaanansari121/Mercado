@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Navbar } from "../components/Navbar";
 import { cn } from "../utils/cn";
 import { useStateContext } from "../contexts";
-import RankingCard from "../components/RankingCard";
+import ArtistRankingCard from "../components/ArtistRankingCard";
 
  function ArtistListing() {
   const { ArtistsContract, account } = useStateContext();
@@ -126,7 +126,7 @@ import RankingCard from "../components/RankingCard";
       </div>
       <div className="flex flex-col mt-0 z-10" style={{ width: "50%" }}>
         {filteredArtists.map((artist, index) => (
-          <RankingCard
+          <ArtistRankingCard
             key={index}
             profileImage={artist.profileImage}
             username={artist.username}
