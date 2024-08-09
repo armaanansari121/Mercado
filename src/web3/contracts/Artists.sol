@@ -142,6 +142,7 @@ contract ArtistStorage {
             msg.sender,
             false
         );
+        artists[msg.sender].myRequests.push(requestId);
         emit ArtRequestCreated(requestId, msg.sender, _description, _price);
     }
 
