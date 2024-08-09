@@ -54,7 +54,7 @@ const CreatorProfile = () => {
         for (let i = 0; i < creator.artworks.length; i++) {
           const { ipfsHash, value } = creator.artworks[i];
           const artworkDetails = {
-            src: ${Gateway_url}/ipfs/${ipfsHash},
+            src: `${Gateway_url}/ipfs/${ipfsHash}`,
             value: value,
           };
           metadataArray.push(artworkDetails);
