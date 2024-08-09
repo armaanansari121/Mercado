@@ -8,6 +8,7 @@ import { Gateway_url } from "../../config";
 import AnimatedText from "../components/AnimatedDiv";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
+import { Link } from "react-router-dom";
 
 const CreatorProfile = () => {
   const { ArtistsContract, account } = useStateContext();
@@ -53,7 +54,7 @@ const CreatorProfile = () => {
         for (let i = 0; i < creator.artworks.length; i++) {
           const { ipfsHash, value } = creator.artworks[i];
           const artworkDetails = {
-            src: `${Gateway_url}/ipfs/${ipfsHash}`,
+            src: ${Gateway_url}/ipfs/${ipfsHash},
             value: value,
           };
           metadataArray.push(artworkDetails);
@@ -90,13 +91,24 @@ const CreatorProfile = () => {
         "relative flex min-h-screen flex-col items-center justify-center overflow-auto bg-slate-950 w-full"
       )}
     >
-      <div className="flex items-center">
-        <div className="px-[10rem] py-[2rem] rounded-md mb- mr-0">
-          <AnimatedText>
-            <div className="list-decimal text-slate-400 px-10 text-center">
-              Creator Profile
-            </div>
-          </AnimatedText>
+      <div className="flex w-full items-center justify-evenly ">
+        <div className="px-[10rem] py-[2rem] rounded-md mb- mr-0 flex justify-center items-center">
+          <div className="mx-36">
+            <AnimatedText>
+              <div className="list-decimal text-slate-400 px-10 text-center">
+                Creator Profile
+              </div>
+            </AnimatedText>
+          </div>
+          <div className="mx-36">
+            <Link to={"/CreatorsRanking"}>
+              <AnimatedText>
+                <div className="list-decimal text-slate-400 px-10 text-center">
+                  Creator Rankings
+                </div>
+              </AnimatedText>
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -161,6 +173,11 @@ const CreatorProfile = () => {
                 </div>
               )}
             </AnimatedText>
+          </div>
+          <div className="mb-16 text-center">
+            <Link to={"/allRequests"}>
+              <AnimatedText>View Artist Requests</AnimatedText>
+            </Link>
           </div>
         </div>
         <AnimatedText>
