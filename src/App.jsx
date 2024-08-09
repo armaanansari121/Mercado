@@ -28,8 +28,9 @@ import ERC1155_ABI from "../src/web3/ABIs/ERC1155_ABI.json";
 import Mercat_ABI from "../src/web3/ABIs/Mercat_ABI.json";
 import Artists_ABI from "../src/web3/ABIs/Artists_ABI.json";
 import { CreatorsRanking } from "./pages/CreatorsRanking";
-import  ArtistsListing  from "./pages/ArtistsListing";
-import ViewRequest from "./pages/ViewRequest";
+import ArtistsListing from "./pages/ArtistsListing";
+import ViewRequestOptions from "./pages/ViewRequestOptions";
+import MyRequests from "./pages/MyRequests";
 
 export const client = createThirdwebClient({
   clientId: "279bdbf9028501a51bf797ada51321ac",
@@ -117,7 +118,11 @@ function App() {
           <Route path="/createNFT" element={<CreateNFT />} />
           <Route path="/creatorProfile" element={<CreatorProfile />} />
           <Route path="/artistProfile" element={<ArtistProfile />} />
-          <Route path="/ViewRequest" element={<ViewRequest />} />
+          <Route
+            path="/viewOptions/:requestId"
+            element={<ViewRequestOptions />}
+          />
+          <Route path="/myRequests" element={<MyRequests />} />
         </Routes>
 
         <ConnectWalletButton />
