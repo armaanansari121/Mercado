@@ -52,10 +52,6 @@ const ViewRequestOptions = () => {
     }
   };
 
-  if (loading) {
-    return <div className="text-slate-200">Loading...</div>;
-  }
-
   const cards = options.map((option, index) => ({
     description: `Option ${index + 1}`,
     title: `Art Option ${index + 1}`,

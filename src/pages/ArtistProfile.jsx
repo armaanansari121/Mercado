@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
 import { cn } from "../utils/cn";
 import { useStateContext } from "../contexts";
@@ -7,6 +8,7 @@ import AnimatedText from "../components/AnimatedDiv";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { useNavigate } from "react-router-dom";
+import { BackgroundGradientDemo } from "../components/BackgroundGradientDemo";
 
 const ArtistProfile = () => {
   const { ArtistsContract, ERC1155_CONTRACT, account } = useStateContext();
@@ -273,32 +275,31 @@ const ArtistProfile = () => {
                 <h1 className="text-4xl text-slate-200">OWNED NFTs</h1>
                 <div className="flex items-center flex-wrap justify-around">
                   {metadata.map((item, index) => (
-                    <div
-                      key={index}
-                      className="rounded-md mx-10 border-2 border-slate-700 w-72 h-80 mb-4 flex flex-col items-center bg-slate-900"
-                    >
-                      <img
-                        src={item?.image}
-                        alt={item?.name}
-                        className="h-52 w-52 mb-4 rounded "
-                      />
-                      <div className="text-sm text-center text-slate-400">
-                        <p>
-                          <strong>Name:</strong> {item.name}
-                        </p>
-                        <p>
-                          <strong>Description:</strong> {item.description}
-                        </p>
-                        <p>
-                          <strong>Theme:</strong> {item.theme}
-                        </p>
-                        <p>
-                          <strong>Perks:</strong> {item.perks}
-                        </p>
-                        <p>
-                          <strong>Price:</strong> {item.price} MER
-                        </p>
-                      </div>
+                    <div key={index}>
+                      <BackgroundGradientDemo>
+                        <img
+                          src={item?.image}
+                          alt={item?.name}
+                          className="h-52 w-52 mb-4 rounded-2xl "
+                        />
+                        <div className="text-sm text-center text-white-400">
+                          <p>
+                            <strong>Name:</strong> {item.name}
+                          </p>
+                          <p>
+                            <strong>Description:</strong> {item.description}
+                          </p>
+                          <p>
+                            <strong>Theme:</strong> {item.theme}
+                          </p>
+                          <p>
+                            <strong>Perks:</strong> {item.perks}
+                          </p>
+                          <p>
+                            <strong>Price:</strong> {item.price} MER
+                          </p>
+                        </div>
+                      </BackgroundGradientDemo>
                     </div>
                   ))}
                 </div>
