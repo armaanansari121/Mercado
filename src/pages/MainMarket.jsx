@@ -41,11 +41,17 @@ export function MainMarket() {
         const totalNFTs = parseInt(totalIDs) - 1;
         const metadataArray = [];
         for (let i = 1; i <= totalNFTs; i++) {
-          const ipfsHash = await ERC1155_CONTRACT.methods.tokenIdToIpfsHash(i).call();
-          const NFTDetails = await ERC1155_CONTRACT.methods.getMarketDetails(ipfsHash).call();
+          const ipfsHash = await ERC1155_CONTRACT.methods
+            .tokenIdToIpfsHash(i)
+            .call();
+          const NFTDetails = await ERC1155_CONTRACT.methods
+            .getMarketDetails(ipfsHash)
+            .call();
           const Metadata = await getMetadata(Gateway_url, ipfsHash);
           // fetching Updated price of NFT
-          const updatedPrice = await ERC1155_CONTRACT.methods.getNFTPrice(ipfsHash).call();
+          const updatedPrice = await ERC1155_CONTRACT.methods
+            .getNFTPrice(ipfsHash)
+            .call();
           metadataArray.push({
             name: NFTDetails[0],
             description: NFTDetails[1],
@@ -98,7 +104,9 @@ export function MainMarket() {
 
   const handleImageClick = (image) => {
     setSelectedImage(image);
-    const selectedMetadata = filteredMetadata.find((item) => item.image === image);
+    const selectedMetadata = filteredMetadata.find(
+      (item) => item.image === image
+    );
     setSelectedImageDetails(selectedMetadata || {});
   };
 
@@ -125,7 +133,9 @@ export function MainMarket() {
           setFilteredMetadata(
             location.search
               ? updatedMetadata.filter(
-                  (item) => item.theme === new URLSearchParams(location.search).get("theme")
+                  (item) =>
+                    item.theme ===
+                    new URLSearchParams(location.search).get("theme")
                 )
               : updatedMetadata
           );
@@ -165,7 +175,9 @@ export function MainMarket() {
           setFilteredMetadata(
             location.search
               ? updatedMetadata.filter(
-                  (item) => item.theme === new URLSearchParams(location.search).get("theme")
+                  (item) =>
+                    item.theme ===
+                    new URLSearchParams(location.search).get("theme")
                 )
               : updatedMetadata
           );
@@ -190,7 +202,9 @@ export function MainMarket() {
         "relative overflow-hidden flex min-h-screen flex-col items-center justify-center z-[5000] bg-slate-950 w-full pt-20",
         backgroundImage && "bg-cover bg-center bg-no-repeat bg-fixed"
       )}
-      style={backgroundImage ? { backgroundImage: `url(${backgroundImage})` } : {}}
+      style={
+        backgroundImage ? { backgroundImage: `url(${backgroundImage})` } : {}
+      }
     >
       <div className="absolute inset-0 bg-black opacity-75 overflow-hidden"></div>
       <Navbar />
@@ -249,24 +263,40 @@ export function MainMarket() {
             <>
               <div className="Details">
                 <div className="text-neutral-200 text-2xl mb-4">
-                  Name: <span className="text-neutral-500">{selectedImageDetails?.name}</span>
+                  Name:{" "}
+                  <span className="text-neutral-500">
+                    {selectedImageDetails?.name}
+                  </span>
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">
                   Description:{" "}
-                  <span className="text-neutral-500">{selectedImageDetails?.description}</span>
+                  <span className="text-neutral-500">
+                    {selectedImageDetails?.description}
+                  </span>
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">
-                  Price: <span className="text-neutral-500">{selectedImageDetails?.price} MEC</span>
+                  Price:{" "}
+                  <span className="text-neutral-500">
+                    {selectedImageDetails?.price} MEC
+                  </span>
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">
                   MintedNFTs:{" "}
-                  <span className="text-neutral-500">{selectedImageDetails?.countNFTs}</span>
+                  <span className="text-neutral-500">
+                    {selectedImageDetails?.countNFTs}
+                  </span>
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">
-                  Artist: <span className="text-neutral-500">{selectedImageDetails?.creator}</span>
+                  Artist:{" "}
+                  <span className="text-neutral-500">
+                    {selectedImageDetails?.creator}
+                  </span>
                 </div>
                 <div className="text-neutral-200 text-2xl mt-4 mb-4">
-                  Perks: <span className="text-neutral-500">{selectedImageDetails?.perks}</span>
+                  Perks:{" "}
+                  <span className="text-neutral-500">
+                    {selectedImageDetails?.perks}
+                  </span>
                 </div>
               </div>
 
@@ -287,55 +317,54 @@ export function MainMarket() {
                   }}
                 />
               </div>
-            <div className="flex gap-28 justify-center">
-              <div className="Purchase flex justify-center items-center mt-4">
-              {Buyloading ? (
-                <div className="text-slate-100 flex justify-center items-center">
-                  <div
-                    className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
-                    role="status"
-                  ></div>
-                  <span>Loading...</span>
+              <div className="flex gap-28 justify-center">
+                <div className="Purchase flex justify-center items-center mt-4">
+                  {Buyloading ? (
+                    <div className="text-slate-100 flex justify-center items-center">
+                      <div
+                        className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                        role="status"
+                      ></div>
+                      <span>Loading...</span>
+                    </div>
+                  ) : (
+                    <motion.button
+                      whileHover={{
+                        boxShadow: "0 0 10px 3px rgba(255, 255, 255, 0.7)",
+                        transform: "translateY(-2px)",
+                      }}
+                      className="block my-4 p-3 px-6 text-white rounded-2xl hover:bg-[#7c1485] transition-all duration-200"
+                      style={{ backgroundColor: "#92199f" }}
+                      onClick={handleBuy}
+                    >
+                      Buy
+                    </motion.button>
+                  )}
                 </div>
-              ) : (
-                <motion.button
-                  whileHover={{
-                    boxShadow: "0 0 10px 3px rgba(255, 255, 255, 0.7)",
-                    transform: "translateY(-2px)",
-                  }}
-                  className="block my-4 p-3 px-6 text-white rounded-2xl hover:bg-[#7c1485] transition-all duration-200"
-                  style={{ backgroundColor: "#92199f" }}
-                  onClick={handleBuy}
-                >
-                  Buy
-                </motion.button>
-              )}
-            </div>
-            <div className="Sell flex justify-center items-center mt-4">
-              {Sellloading ? (
-                <div className="text-slate-100 flex justify-center items-center">
-                  <div
-                    className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
-                    role="status"
-                  ></div>
-                  <span>Loading...</span>
+                <div className="Sell flex justify-center items-center mt-4">
+                  {Sellloading ? (
+                    <div className="text-slate-100 flex justify-center items-center">
+                      <div
+                        className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                        role="status"
+                      ></div>
+                      <span>Loading...</span>
+                    </div>
+                  ) : (
+                    <motion.button
+                      whileHover={{
+                        boxShadow: "0 0 10px 3px rgba(255, 255, 255, 0.7)",
+                        transform: "translateY(-2px)",
+                      }}
+                      className="block my-4 p-3 px-6 text-white rounded-2xl hover:bg-[#FF6B6B] transition-all duration-200"
+                      style={{ backgroundColor: "#FF4D4D" }}
+                      onClick={handleSell}
+                    >
+                      Sell
+                    </motion.button>
+                  )}
                 </div>
-              ) : (
-                <motion.button
-                  whileHover={{
-                    boxShadow: "0 0 10px 3px rgba(255, 255, 255, 0.7)",
-                    transform: "translateY(-2px)",
-                  }}
-                  className="block my-4 p-3 px-6 text-white rounded-2xl hover:bg-[#FF6B6B] transition-all duration-200"
-                  style={{ backgroundColor: "#FF4D4D" }}
-                  onClick={handleSell}
-                >
-                  Sell
-                </motion.button>
-              )}
-
-            </div>
-            </div>
+              </div>
             </>
           )}
         </div>
